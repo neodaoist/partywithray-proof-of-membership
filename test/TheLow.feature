@@ -1,8 +1,8 @@
 Feature: Partywithray Proof of Membership
 
     As a Partywithray Fan,
-    I want to mint "The Low" Proof of Membership NFT,
-    so that I can get more involved in his community and receive exclusive merch and access
+    I want to buy "The Low" Proof of Membership NFT,
+    so that I can get more involved in his community and receive exclusive merch and access.
 
     Background: Deploy and Mint
         Given the Partywithray Proof of Membership NFT contract is deployed
