@@ -7,7 +7,7 @@ use ethers::prelude::*;
 use ethers_contract::Contract;
 use std::time::Duration;
 use std::sync::Arc;
-use cucumber::{ World, writer };
+use cucumber::{ World, writer, WriterExt };
 use ethers_core::k256;
 use futures::FutureExt;
 
@@ -89,13 +89,17 @@ pub(crate) async fn run(config: TestConfig) -> () {
         //let world =
         SCWorld::cucumber()
             // Start a fresh anvil before each scenario
-            //.before(move |_, _, _, world| {
-            //    async move {
             .before(move |_feature, _rule, _scenario, world| {
                     start_anvil(fork_url.clone(), chain_id.clone(), world).boxed_local()
             })
-            .with_writer(writer::JUnit::new(file, 0))    // Uncomment for output to JUnit XML for Github Actions, etc
+            .with_writer(
+                // Output to both console and JUnit XML
+                // NOTE: `Writer`s pipeline is constructed in a reversed order.
+                writer::Basic::stdout() // And output to STDOUT.
+                    .summarized()       // Simultaneously, add execution summary.
+                    .tee::<SCWorld, _>(writer::JUnit::for_tee(file, 0)) // Then, output to XML file.
+                    .normalized()       // First, normalize events order.
+            )
             .run("tests/features")
             .await;
     }
-// }
