@@ -95,7 +95,7 @@ pub(crate) async fn run(config: TestConfig) -> () {
                     start_anvil(fork_url.clone(), chain_id.clone(), world).boxed_local()
             })
             .with_writer(writer::JUnit::new(file, 0))    // Uncomment for output to JUnit XML for Github Actions, etc
-            .run("tests/features/implemented")
+            .run("tests/features")
             .await;
     }
 // }
