@@ -4,7 +4,7 @@ use std::borrow::Borrow;
 use async_std::task;
 use crate::solidity_bdd::{SCWorld, TestConfig};
 use cucumber::{gherkin::Step, given, when, then, World};
-use ethers::prelude::k256;
+use ethers::prelude::*; // {k256, U256};
 use ethers_contract::{abigen, Contract};
 use ethers_middleware::SignerMiddleware;
 use ethers_providers::{Http, Provider};
@@ -35,11 +35,9 @@ async fn main()
 }
 
 // Stepdefs
-
-#[given("the Partywithray Proof of Membership NFT contract is deployed")]
+#[given(r#"the Partywithray Proof of Membership NFT contract is deployed"#)]
 fn deploy_party_with_ray(world: &mut SCWorld) {
-    println!("Deploying the low");
-    let thelow_contract = task::block_on(solidity_bdd::the_low::TheLow::deploy(world.client(), ()).expect("Failed to deploy").send()).expect("Failed to send");
+    let thelow_contract = task::block_on(solidity_bdd::the_low::TheLow::deploy(world.client(), (*world.deployer_address())).expect("Failed to deploy").send()).expect("Failed to send");
     world.thelow_contract = Some(thelow_contract);
 }
 
@@ -61,4 +59,15 @@ async fn verify_name_and_symbol(world: &mut SCWorld, expected_name: String, expe
 
     assert_eq!(expected_name, actual_name);
     assert_eq!(expected_symbol, actual_symbol);
+}
+
+#[then(regex = r#"^the supply should be ([\d]+)$"#)]
+async fn verify_supply(world: &mut SCWorld, expected_supply_str: String) {
+    let expected_supply = ethers::types::U256::from_dec_str(expected_supply_str.as_str()).expect("Expected supply value should be a number");
+
+    let actual_supply = world.thelow_contract.as_ref().expect("TheLow Contract should be initialized")
+        .method::<_, U256>("totalSupply", ())
+        .expect("Error finding totalSupply method").call().await.expect("Error sending totalSupply call");
+
+    assert_eq!(expected_supply, actual_supply);
 }

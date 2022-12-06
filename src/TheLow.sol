@@ -21,7 +21,7 @@ contract TheLow is ERC721, Owned {
                         CONSTRUCTOR
     //////////////////////////////////////////////////////////////*/
 
-    constructor(address _bigNight) ERC721("partywithray - The Low", "LOW") Owned(_bigNight) {
+    constructor(address bigNightAddr) ERC721("partywithray - The Low", "LOW") Owned(bigNightAddr) {
         // Add metadata URIs for each tier
         _tierURIs = new string[](6);
         _tierURIs[0] = "ipfs://ABC"; // prereveal metadata URI
@@ -32,9 +32,7 @@ contract TheLow is ERC721, Owned {
         _tierURIs[5] = "ipfs://GHI";
 
         // Mint NFTs
-        for (uint256 i = 1; i <= MAX_SUPPLY; i++) {
-            _mint(_bigNight, i);
-        }
+        mintBatch(bigNightAddr, 1, MAX_SUPPLY, 0);
     }
 
     /*//////////////////////////////////////////////////////////////
@@ -59,7 +57,7 @@ contract TheLow is ERC721, Owned {
 
     function mintBatch(address to, uint256 start, uint256 quantity, uint8 tierIndex) public {
         for(uint i = start; i < (start+quantity); i++) {
-            mint(to, i, tierIndex);
+            _mint(to, i /*, tierIndex */);
         }
     }
 

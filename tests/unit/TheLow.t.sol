@@ -161,7 +161,7 @@ contract TheLowTest is Test {
     // }
 
     function testMintBatch() public {
-        low.mintBatch(alice, 1, 20, 0);
+        // Minting happens in the constructor
         assertEq(low.totalSupply(), 222);
     }
 
