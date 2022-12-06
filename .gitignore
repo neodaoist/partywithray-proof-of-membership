@@ -9,3 +9,9 @@ out/
 
 # Dotenv file
 .env
+
+# IDEA files
+.idea/
+
+# Added by cargo
+/target

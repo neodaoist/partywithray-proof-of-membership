@@ -2,7 +2,7 @@
 pragma solidity ^0.8.13;
 
 import "forge-std/Test.sol";
-import "../src/TheLow.sol";
+import "../../src/TheLow.sol";
 
 contract TheLowTest is Test {
     //

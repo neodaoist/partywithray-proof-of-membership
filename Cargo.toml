@@ -1,0 +1,42 @@
+[package]
+name = "partywithray-proof-of-membership"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+log = "0.4.17"
+ethers = "1.0.2"
+ethers-core = "1.0.2"
+ethers-contract = "1.0.2"
+ethers-solc = "1.0.2"
+ethers-middleware = "1.0.2"
+ethers-providers = "1.0.2"
+ethers-signers = "1.0.2"
+async-std = "1.12"
+tokio = { version = "1.20.1", features = ["macros", "rt-multi-thread", "time"] }
+
+[dev-dependencies]
+async-trait = "0.1"
+cucumber = { version= "0.17.0", features = ["output-junit"] }
+futures = "0.3"
+ethers = "1.0.2"
+ethers-core = "1.0.2"
+ethers-contract = "1.0.2"
+ethers-solc = "1.0.2"
+ethers-middleware = "1.0.2"
+ethers-providers = "1.0.2"
+ethers-signers = "1.0.2"
+eyre = "0.6"
+fs = "0.0.5"
+
+
+[[test]]
+name = "cucumber" # this should be the same as the filename of your test target
+harness = false  # allows Cucumber to print output instead of libtest
+
+
+[build-dependencies]
+ethers = { version = "1.0.2", features = ["abigen"] }
+ethers-solc = "1.0.2"
