@@ -1,8 +1,8 @@
 Feature: Partywithray Proof of Membership
 
     As a Partywithray Fan,
-    I want to mint "The Low" Proof of Membership NFT,
-    so that I can get more involved in his community and receive exclusive merch and access
+    I want to buy "The Low" Proof of Membership NFT,
+    so that I can get more involved in his community and receive exclusive merch and access.
 
     Background: Deploy and Mint
         Given the Partywithray Proof of Membership NFT contract is deployed
@@ -40,3 +40,21 @@ Feature: Partywithray Proof of Membership
         Then there should be the correct amount of tokens in the vault and in total supply
         And the ability to update metadata should be frozen
         And the ability to reduce supply should be frozen
+
+# TODO What should the prereveal art be, What should the collection logo be
+# TODO What should the animation video be for each tier, What should the static image be
+# TODO What Ethereum address should we send royalties and set aside tokens to
+# TODO What Ethereum address should the contract ownership be passed to, after prereveal
+# TODO What percentage should secondary royalties be (5–10% standard)
+# TODO What should our collection page look like
+#   - Logo
+#   - Featured
+#   - Banner
+#   - Name
+#   - URL
+#   - Description
+#   - Category
+#   - Social links (Twitter, Discord, Instagram)
+#   - Web links (Website, Medium, Telegram)
+#   - Royalties
+# TODO Decide on release timing — how about 11/22/22 to open up 2 week pre-reveal phase?
