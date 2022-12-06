@@ -6,25 +6,14 @@ Feature: Partywithray Proof of Membership
 
     Background: Deploy and Mint
         Given the Partywithray Proof of Membership NFT contract is deployed
-        Then the name should be "partywithray - The Low" and the symbol should "LOW"
-        And the supply should be 222
-        # Do we want to mint in the constructor?  Assuming we should have a "when minted" step
-        And the provenance hash should be TODOProvenanceHash
-        And all 222 NFTs should have the same art
-        And each NFT title should be "The Low {id}/222"
-        # Title uniqueness means we can't share metadata
-        And each NFT description should be "TODODescriptionIncludeDesignerCredit"
-        And royalties should be set at 10% going to TODOBigNightENSName
-        And the ability to mint more NFTs should be frozen
 
     Scenario: Mint on creation
         Then the name should be "partywithray - The Low" and the symbol should "LOW"
         And the supply should be 222
-        And all 222 NFTs should have the same art
+        And all 222 NFTs should have the pre-reveal art
         And each NFT title should be "The Low {id}/222"
-            # Title uniqueness means we can't share metadata
-        And each NFT description should be "TODODescriptionIncludeDesignerCredit"
-        And royalties should be set at 10% going to TODOBigNightENSName
+        And each NFT description should be "Commemorative NFT for Party With Ray at Big Night, Boston"
+        And royalties should be set at 10% going to the "Big Night" address
         And the ability to mint more NFTs should be frozen
 
     Scenario: List for sale

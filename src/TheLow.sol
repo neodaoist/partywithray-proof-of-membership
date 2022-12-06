@@ -2,8 +2,9 @@
 pragma solidity ^0.8.13;
 
 import {ERC721} from "solmate/tokens/ERC721.sol";
+import {ERC721Enumerable} from "solmate/tokens/ERC721Enumerable.sol";
 
-contract TheLow is ERC721 {
+contract TheLow is ERC721,ERC721Enumerable {
     //
 
     string[] internal _tierURIs;
@@ -37,6 +38,12 @@ contract TheLow is ERC721 {
     function mint(address to, uint256 tokenId, uint8 tierIndex) public {
         _tokenURIs[tokenId] = _tierURIs[tierIndex];
         _mint(to, tokenId);
+    }
+
+    function mintBatch(address to, uint256 start, uint256 quantity, uint8 tierIndex) public {
+        for(uint i = start; i < (start+quantity); i++) {
+            mint(to, i, tierIndex);
+        }
     }
 
     /*//////////////////////////////////////////////////////////////

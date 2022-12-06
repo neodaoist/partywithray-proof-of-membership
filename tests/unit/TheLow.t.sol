@@ -57,6 +57,11 @@ contract TheLowTest is Test {
         assertEq(low.ownerOf(1), alice);
     }
 
+    function testMintBatch() public {
+        low.mintBatch(alice, 1, 20, 0);
+        assertEq(low.totalSupply(), 222);
+    }
+
     /*//////////////////////////////////////////////////////////////
                         BURN
     //////////////////////////////////////////////////////////////*/
