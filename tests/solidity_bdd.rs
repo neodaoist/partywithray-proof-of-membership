@@ -15,21 +15,29 @@ use futures::FutureExt;
 
 abigen!(TheLow, "out/TheLow.sol/TheLow.json");
 
+/// Context for Cucumber runs
 #[derive(cucumber::World, Default, Debug)]
 pub struct SCWorld {
     config: TestConfig,
-    contracts: HashMap<String, ethers::contract::Contract<SignerMiddleware<Provider<Http>, Wallet<k256::ecdsa::SigningKey>>>>,
+    contracts: HashMap<String, ethers_contract::Contract<SignerMiddleware<Provider<Http>, Wallet<k256::ecdsa::SigningKey>>>>,
     addresses: HashMap<String, Address>,
     address_count: usize,  // TODO: Refactor into a separate address book struct
     anvil: Option<AnvilConnection>,
     pub thelow_contract: Option<the_low::TheLow<SignerMiddleware<Provider<Http>, Wallet<k256::ecdsa::SigningKey>>>> // FIXME: Find a generic way to do this
 }
 
-
 impl SCWorld {
+
+}
+
+/// Helper methods for smart contract projects
+impl SCWorld {
+    /// Returns the deployer address, which is the first address in the Anvil wallet for this run
     pub fn deployer_address(&mut self) -> &Address {
         self.get_address("deployer".to_string())
     }
+
+    /// Returns an address from the address book by name, creating it if it doesn't already exist
     pub fn get_address(&mut self, name: String) -> &Address {
         if ! self.addresses.contains_key(&name) {
             let instance = self.anvil.as_ref().expect("Anvil must be initialized before client is called").anvil.borrow();
@@ -41,6 +49,8 @@ impl SCWorld {
         self.addresses.get(&name).expect("Address not found by name after insert")
 
     }
+
+    /// Returns an EVM client, initialized with the local Anvil test network and wallet
     pub fn client(&self) -> Arc<SignerMiddleware<ethers_providers::Provider<Http>, Wallet<ethers::core::k256::ecdsa::SigningKey>>> {
         let instance = self.anvil.as_ref().expect("Anvil must be initialized before client is called").anvil.borrow();
         let provider = Provider::<Http>::try_from(instance.endpoint()).expect("Failed to connect to Anvil").interval(Duration::from_millis(10u64));
@@ -50,6 +60,10 @@ impl SCWorld {
     }
     pub fn add_contract(&mut self, contract: ethers::contract::Contract<SignerMiddleware<Provider<Http>, Wallet<k256::ecdsa::SigningKey>>>, name: String) {
         self.contracts.insert(name, contract);
+    }
+
+    pub fn contract_query(&self, p0: ethers_contract::Contract<SignerMiddleware<Provider<Http>, Wallet<k256::ecdsa::SigningKey>>>, method_name: &str, args: ()) -> String {
+        "boo".to_string()
     }
 
 

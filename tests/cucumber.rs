@@ -42,3 +42,23 @@ fn deploy_party_with_ray(world: &mut SCWorld) {
     let thelow_contract = task::block_on(solidity_bdd::the_low::TheLow::deploy(world.client(), ()).expect("Failed to deploy").send()).expect("Failed to send");
     world.thelow_contract = Some(thelow_contract);
 }
+
+#[then(regex = r#"the name should be "(.*)" and the symbol should "(.*)""#)]
+async fn verify_name_and_symbol(world: &mut SCWorld, expected_name: String, expected_symbol: String) {
+    // TODO: I wish the following worked but I need the_low::TheLow to be an ethers_contract::Contract
+    //let actual_name: String = world.contract_query(world.thelow_contract.unwrap().into(), "name", ());
+    //let actual_symbol: String = world.contract_query(world.thelow_contract.unwrap().into(), "symbol", ());
+
+    // Look up the contract name
+    let actual_name = world.thelow_contract.as_ref().expect("TheLow Contract should be initialized")
+        .method::<_, String>("name", ())
+        .expect("Error finding name method").call().await.expect("Error sending name call");
+
+    // Look up the contract symbol
+    let actual_symbol = world.thelow_contract.as_ref().expect("TheLow Contract should be initialized")
+        .method::<_, String>("symbol", ())
+        .expect("Error finding symbol method").call().await.expect("Error sending symbol call");
+
+    assert_eq!(expected_name, actual_name);
+    assert_eq!(expected_symbol, actual_symbol);
+}
