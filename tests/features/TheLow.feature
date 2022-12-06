@@ -46,3 +46,16 @@ Feature: Partywithray Proof of Membership
         # Reveal goals:
     # rarity IDs are not known in advance (even to the team) but provably fair
     #
+# TODO What percentage should secondary royalties be (5–10% standard)
+# TODO What should our collection page look like
+#   - Logo
+#   - Featured
+#   - Banner
+#   - Name
+#   - URL
+#   - Description
+#   - Category
+#   - Social links (Twitter, Discord, Instagram)
+#   - Web links (Website, Medium, Telegram)
+#   - Royalties
+# TODO Decide on release timing — how about 11/22/22 to open up 2 week pre-reveal phase?
