@@ -11,6 +11,7 @@ use ethers_providers::{Http, Provider};
 use ethers_signers::Wallet;
 use serde_json;
 use base64;
+use serde_json::json;
 
 const FORK_CHAIN_ID: u64 = 31337_u64;
 
@@ -87,9 +88,9 @@ async fn verify_pre_reveal_art(world: &mut SCWorld, nft_count_str: String) {
         // Decode base64
         let b64string: String = metadata.strip_prefix("data:application/json;base64,").expect("String should have base64 prefix").to_string();
         let jsonbytes = base64::decode(b64string).expect("Base64 string should be valid");
-
+        //println!("Got JSON: {}", String::from_utf8(jsonbytes).expect("String should be UTF-8"));
         // Parse JSON and inspect
         let jsondata: serde_json::Value = serde_json::from_slice(&*jsonbytes).expect("JSON should be valid");
-        assert_eq!(&jsondata["image"],"ipfs://ABC");  // FIXME -- Real IPFS URI here
+        assert_eq!(&jsondata["image"],"ipfs://TBD -- prereveal square");  // FIXME -- Real IPFS URI here
     }
 }

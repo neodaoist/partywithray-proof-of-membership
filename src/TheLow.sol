@@ -15,22 +15,43 @@ contract TheLow is ERC721, Owned {
     uint8 public constant MAX_SUPPLY = 222;
     uint8 public totalSupply = 222;
 
+    struct Tier {
+        string name;
+        string rarity;
+        string image_cid;
+        string animation_cid;
+        string animation_hash;
+        uint8 portion;  // How many tokenIds, out of 222, of this type will be created
+    }
     string[] internal _tierURIs;
-    mapping(uint8 => uint8) internal _tokenTiers;
+//    mapping(uint8 => uint8) internal _tokenTiers;
+
+   Tier[6] internal _tierInfo;
+   uint8[MAX_SUPPLY] internal _tokenTiers;
 
     /*//////////////////////////////////////////////////////////////
                         CONSTRUCTOR
     //////////////////////////////////////////////////////////////*/
 
     constructor(address bigNightAddr) ERC721("partywithray - The Low", "LOW") Owned(bigNightAddr) {
+        // Create the tier info table
+        //                 Name           Rarity        Image CID                  Animation CID                    Animation Hash
+        _tierInfo[0] = Tier('Pre-reveal', 'Pre-reveal', 'TBD -- prereveal square', '', '', 0);
+        _tierInfo[1] = Tier('The Lightest Low', 'Ultracommon', 'TBD -- lowestlow square', '', '', 111);
+        _tierInfo[2] = Tier('The Basic Low', 'Common', 'TBD -- basiclow square', '', '', 75);
+        _tierInfo[3] = Tier('The Medium Low', 'Uncommon', 'TBD -- mediumlow square', 'bafybeih72wvfeo6fest5ombybn3ak5ca7mqip5dzancs7mqrgafaudxx3y', '', 22);
+        _tierInfo[4] = Tier('The Low Low', 'Rare', 'TBD -- lowlow square', 'bafybeiagu3uu5ckzoe7nc2l4ljvh6wser3f5whtxhtayc4prneql6sclq4', '', 11);
+        _tierInfo[5] = Tier('The Ultimate Low', 'Ultrarare', 'TBD -- ultimatelow square', 'bafybeifd52lxad44vtvr5ixinaqsnnjogmrvtib3sluxcnj5m2ofjsrb2a', '', 3);
+
+
         // Add metadata URIs for each tier
         _tierURIs = new string[](6);
-        _tierURIs[0] = "ipfs://ABC"; // prereveal metadata URI
-        _tierURIs[1] = "ipfs://bafkreig6yehifub66r6hc6vifvfvsbpcluztpsxtsnlyu6bwcinmnm7w7q";
-        _tierURIs[2] = "ipfs://bafkreiecosxi6zjigs2z3gikj4liujzpt3ffjdpnferrsau6qgvs4o47xe";
-        _tierURIs[3] = "ipfs://bafkreias7kqlefzhiipc37zqa3dilqdmgdca2uqcqpzev43a2bd5ohpyoi";
-        _tierURIs[4] = "ipfs://DEF";
-        _tierURIs[5] = "ipfs://GHI";
+        _tierURIs[0] = "ABC"; // prereveal metadata URI
+        _tierURIs[1] = "bafkreig6yehifub66r6hc6vifvfvsbpcluztpsxtsnlyu6bwcinmnm7w7q";
+        _tierURIs[2] = "bafkreiecosxi6zjigs2z3gikj4liujzpt3ffjdpnferrsau6qgvs4o47xe";
+        _tierURIs[3] = "bafkreias7kqlefzhiipc37zqa3dilqdmgdca2uqcqpzev43a2bd5ohpyoi";
+        _tierURIs[4] = "DEF";
+        _tierURIs[5] = "GHI";
 
         // Mint NFTs
         mintBatch(bigNightAddr, 1, MAX_SUPPLY, 0);
@@ -49,11 +70,13 @@ contract TheLow is ERC721, Owned {
                         string(
                             abi.encodePacked(
                                 '{"name": "', utils.uint256ToString(tokenId),
-                                '", "description": "Commemorative NFT for Party With Ray at Big Night, Boston", "image": "',
-                                _tierURIs[0],
-                                '", "attributes": {"trait_type": "Tier", "value": ',
-                                '"???"',
-                                '}}'
+                                '", "description": "partywithray Proof of Membership", "image": "ipfs://',
+                                _tierInfo[0].image_cid,
+                                '", "attributes": { "Tier Name": "',
+                                _tierInfo[0].name,
+                                 '", "Tier Rarity" : "',
+                                _tierInfo[0].rarity,
+                                '"}}'
                             )
                         )
                     )
