@@ -9,6 +9,8 @@ use ethers_contract::{abigen, Contract};
 use ethers_middleware::SignerMiddleware;
 use ethers_providers::{Http, Provider};
 use ethers_signers::Wallet;
+use serde_json;
+use base64;
 
 const FORK_CHAIN_ID: u64 = 31337_u64;
 
@@ -70,4 +72,24 @@ async fn verify_supply(world: &mut SCWorld, expected_supply_str: String) {
         .expect("Error finding totalSupply method").call().await.expect("Error sending totalSupply call");
 
     assert_eq!(expected_supply, actual_supply);
+}
+
+#[then(regex = r#"^all ([\d]+) NFTs should have the pre-reveal art$"#)]
+async fn verify_pre_reveal_art(world: &mut SCWorld, nft_count_str: String) {
+    // ImageURI return a JSON blob -- parse out the image in all 222 NFTs
+    let nft_count: i32 = nft_count_str.parse().expect("Number of NFTs should be a number");
+    for i in 1..nft_count {
+        // Look up the JSON metadata
+        let metadata: String = world.thelow_contract.as_ref().expect("TheLow Contract should be initialized")
+            .method::<_, String>("tokenURI", U256::from(i))
+            .expect("Error finding tokenURI method").call().await.expect("Error sending tokenURI call");
+
+        // Decode base64
+        let b64string: String = metadata.strip_prefix("data:application/json;base64,").expect("String should have base64 prefix").to_string();
+        let jsonbytes = base64::decode(b64string).expect("Base64 string should be valid");
+
+        // Parse JSON and inspect
+        let jsondata: serde_json::Value = serde_json::from_slice(&*jsonbytes).expect("JSON should be valid");
+        assert_eq!(&jsondata["image"],"ipfs://ABC");  // FIXME -- Real IPFS URI here
+    }
 }

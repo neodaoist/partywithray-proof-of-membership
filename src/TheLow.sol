@@ -3,6 +3,7 @@ pragma solidity 0.8.13;
 
 import {ERC721} from "solmate/tokens/ERC721.sol";
 import {Owned} from "solmate/auth/Owned.sol";
+import "./utils.sol";
 
 /// @notice
 contract TheLow is ERC721, Owned {
@@ -39,8 +40,26 @@ contract TheLow is ERC721, Owned {
                         TOKEN URI
     //////////////////////////////////////////////////////////////*/
 
-    function tokenURI(uint256 _tokenId) public view override returns (string memory) {
-        return _tierURIs[_tokenTiers[uint8(_tokenId)]];
+    function tokenURI(uint256 tokenId) public view override returns (string memory) {
+        return string(
+            abi.encodePacked(
+                "data:application/json;base64,",
+                utils.encode(
+                    bytes(
+                        string(
+                            abi.encodePacked(
+                                '{"name": "', utils.uint256ToString(tokenId),
+                                '", "description": "Commemorative NFT for Party With Ray at Big Night, Boston", "image": "',
+                                _tierURIs[0],
+                                '", "attributes": {"trait_type": "Tier", "value": ',
+                                '"???"',
+                                '}}'
+                            )
+                        )
+                    )
+                )
+            )
+        );
     }
 
     /*//////////////////////////////////////////////////////////////
