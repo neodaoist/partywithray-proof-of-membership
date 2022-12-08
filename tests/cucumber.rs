@@ -79,7 +79,7 @@ async fn verify_supply(world: &mut SCWorld, expected_supply_str: String) {
 async fn verify_pre_reveal_art(world: &mut SCWorld, nft_count_str: String) {
     // ImageURI return a JSON blob -- parse out the image in all 222 NFTs
     let nft_count: i32 = nft_count_str.parse().expect("Number of NFTs should be a number");
-    for i in 1..nft_count {
+    for i in 1..=nft_count {
         // Look up the JSON metadata
         let metadata: String = world.thelow_contract.as_ref().expect("TheLow Contract should be initialized")
             .method::<_, String>("tokenURI", U256::from(i))
@@ -93,4 +93,27 @@ async fn verify_pre_reveal_art(world: &mut SCWorld, nft_count_str: String) {
         let jsondata: serde_json::Value = serde_json::from_slice(&*jsonbytes).expect("JSON should be valid");
         assert_eq!(&jsondata["image"],"ipfs://TBD -- prereveal square");  // FIXME -- Real IPFS URI here
     }
+}
+
+#[then(regex = r#"each NFT title should be "(.*)""#)]
+async fn verify_title(world: &mut SCWorld, title: String) {
+    // ImageURI return a JSON blob -- parse out the image in all 222 NFTs
+    for i in 1..=222 {
+        // FIXME: Dup
+        // Look up the JSON metadata
+        let metadata: String = world.thelow_contract.as_ref().expect("TheLow Contract should be initialized")
+            .method::<_, String>("tokenURI", U256::from(i))
+            .expect("Error finding tokenURI method").call().await.expect("Error sending tokenURI call");
+
+        // Decode base64
+        let b64string: String = metadata.strip_prefix("data:application/json;base64,").expect("String should have base64 prefix").to_string();
+        let jsonbytes = base64::decode(b64string).expect("Base64 string should be valid");
+        //println!("Got JSON: {}", String::from_utf8(jsonbytes).expect("String should be UTF-8"));
+        // Parse JSON and inspect
+        let jsondata: serde_json::Value = serde_json::from_slice(&*jsonbytes).expect("JSON should be valid");
+        let expected_title = title.replace("{id}", i.to_string().as_str());
+
+        assert_eq!(&jsondata["name"], expected_title.as_str());
+    }
+
 }

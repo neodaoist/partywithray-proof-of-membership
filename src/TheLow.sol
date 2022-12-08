@@ -69,7 +69,7 @@ contract TheLow is ERC721, Owned {
                     bytes(
                         string(
                             abi.encodePacked(
-                                '{"name": "', utils.uint256ToString(tokenId),
+                                '{"name": "The Low ', utils.uint256ToString(tokenId), '/222',
                                 '", "description": "partywithray Proof of Membership", "image": "ipfs://',
                                 _tierInfo[0].image_cid,
                                 '", "attributes": { "Tier Name": "',
