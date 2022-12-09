@@ -33,12 +33,12 @@ impl SCWorld {
 /// Helper methods for smart contract projects
 impl SCWorld {
     /// Returns the deployer address, which is the first address in the Anvil wallet for this run
-    pub fn deployer_address(&mut self) -> &Address {
+    pub fn deployer_address(&mut self) -> Address {
         self.get_address("deployer".to_string())
     }
 
     /// Returns an address from the address book by name, creating it if it doesn't already exist
-    pub fn get_address(&mut self, name: String) -> &Address {
+    pub fn get_address(&mut self, name: String) -> Address {
         if ! self.addresses.contains_key(&name) {
             let instance = self.anvil.as_ref().expect("Anvil must be initialized before client is called").anvil.borrow();
             let wallet: LocalWallet = instance.keys()[self.address_count].clone().into();
@@ -46,7 +46,7 @@ impl SCWorld {
             self.addresses.insert(name.clone(), wallet.address());
         }
 
-        self.addresses.get(&name).expect("Address not found by name after insert")
+        self.addresses.get(&name).expect("Address not found by name after insert").clone().to_owned()
 
     }
 

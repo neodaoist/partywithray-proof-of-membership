@@ -6,25 +6,14 @@ Feature: Partywithray Proof of Membership
 
     Background: Deploy and Mint
         Given the Partywithray Proof of Membership NFT contract is deployed
-        Then the name should be "partywithray - The Low" and the symbol should "LOW"
-        And the supply should be 222
-        # Do we want to mint in the constructor?  Assuming we should have a "when minted" step
-        And the provenance hash should be TODOProvenanceHash
-        And all 222 NFTs should have the same art
-        And each NFT title should be "The Low {id}/222"
-        # Title uniqueness means we can't share metadata
-        And each NFT description should be "TODODescriptionIncludeDesignerCredit"
-        And royalties should be set at 10% going to TODOBigNightENSName
-        And the ability to mint more NFTs should be frozen
 
     Scenario: Mint on creation
         Then the name should be "partywithray - The Low" and the symbol should "LOW"
         And the supply should be 222
-        And all 222 NFTs should have the same art
+        And all 222 NFTs should have the pre-reveal art
         And each NFT title should be "The Low {id}/222"
-            # Title uniqueness means we can't share metadata
-        And each NFT description should be "TODODescriptionIncludeDesignerCredit"
-        And royalties should be set at 10% going to TODOBigNightENSName
+        And each NFT description should be "partywithray Proof of Membership"
+        And royalties should be set at 10% going to the "Big Night" address
         And the ability to mint more NFTs should be frozen
 
     Scenario: List for sale
@@ -36,14 +25,13 @@ Feature: Partywithray Proof of Membership
         Given 11 NFTs were held for promo and all remaining 211 NFTs were sold
         When we reveal the art
         Then there should be 222 tokens with the following metadata and quantities:
-            | Tier             | Rarity      | Image      | Quantity |
-            | The Ultimate Low | Ultrarare   | ipfs://xyz | 3        |
-            | The Low Low      | Rare        | ipfs://xyz | 11       |
-            | The Medium Low   | Uncommon    | ipfs://xyz | 22       |
-            | The Basic Low    | Common      | ipfs://xyz | 75       |
-            | The Lightest Low | Ultracommon | ipfs://xyz | 111      |
+            | Tier             | Rarity      | Image      | Quantity | Number |
+            | The Ultimate Low | Ultrarare   | ipfs://bafybeia3g433ghgkqofvdyf63vrgs64ybnb6q3glty4qjyk67hdtmaw3wm | 3        | 5      |
+            | The Low Low      | Rare        | ipfs://bafybeidhj37sswlzaclfmg3eg733gqmopp2ronvfcx7vjh67fequ5cox4a | 11       | 4      |
+            | The Medium Low   | Uncommon    | ipfs://bafybeif3dupvjfszlc6vro3ruadocemw2r2mt44qomd2baxayb4v3glhey | 22       | 3      |
+            | The Basic Low    | Common      | ipfs://bafybeicvdszyeodww2os5z33u5rtorfqw3eae5wv5uqcx2a32ovklcpwoa | 75       | 2      |
+            | The Lightest Low | Ultracommon | ipfs://bafybeifwg6zzxxbit7diqfojrgskd7eb5mdryhxtenlx2lroaef2mxd5ga | 111      | 1      |
         And the ability to update metadata should be frozen
-        And the ability to reduce supply should be frozen
 
     Scenario: Reveal when does not sell out
         Given 11 NFTs were held for promo and less than remaining 211 NFTs were sold
@@ -57,3 +45,16 @@ Feature: Partywithray Proof of Membership
         # Reveal goals:
     # rarity IDs are not known in advance (even to the team) but provably fair
     #
+# TODO What percentage should secondary royalties be (5–10% standard)
+# TODO What should our collection page look like
+#   - Logo
+#   - Featured
+#   - Banner
+#   - Name
+#   - URL
+#   - Description
+#   - Category
+#   - Social links (Twitter, Discord, Instagram)
+#   - Web links (Website, Medium, Telegram)
+#   - Royalties
+# TODO Decide on release timing — how about 11/22/22 to open up 2 week pre-reveal phase?

@@ -2593,6 +2593,7 @@ version = "0.1.0"
 dependencies = [
  "async-std",
  "async-trait",
+ "base64 0.13.1",
  "cucumber",
  "ethers",
  "ethers-contract",
@@ -2605,6 +2606,7 @@ dependencies = [
  "fs",
  "futures 0.3.25",
  "log",
+ "serde_json",
  "tokio",
 ]
 
