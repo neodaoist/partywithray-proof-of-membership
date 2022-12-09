@@ -1,0 +1,39 @@
+# Deploy
+forge create --rpc-url $RPC_URL --constructor-args $TESTNET_DEPLOYER_ADDR --private-key $TESTNET_PK src/TheLow.flattened.sol:TheLow --etherscan-api-key $ETHERSCAN_KEY  --verify
+
+
+
+
+
+[⠒] Compiling...
+No files changed, compilation skipped
+Deployer: 0xf068e6F80fA1d55A27be3408cbdad3fCDa704514
+Deployed to: 0xfB2160E93816b96559cE333f8Cf30D03989A6955
+Transaction hash: 0x0fd3dbe400759c26ce8bc766c264f31c97962fd89919c173b166dbcb713a03ce
+Starting contract verification...
+Waiting for etherscan to detect contract deployment...
+Start verifying contract `0xfb2160e93816b96559ce333f8cf30d03989a6955` deployed on goerli
+
+Submitting verification for [src/TheLow.flattened.sol:TheLow] "0xfB2160E93816b96559cE333f8Cf30D03989A6955".
+
+Submitting verification for [src/TheLow.flattened.sol:TheLow] "0xfB2160E93816b96559cE333f8Cf30D03989A6955".
+
+Submitting verification for [src/TheLow.flattened.sol:TheLow] "0xfB2160E93816b96559cE333f8Cf30D03989A6955".
+
+Submitting verification for [src/TheLow.flattened.sol:TheLow] "0xfB2160E93816b96559cE333f8Cf30D03989A6955".
+
+Submitting verification for [src/TheLow.flattened.sol:TheLow] "0xfB2160E93816b96559cE333f8Cf30D03989A6955".
+
+Submitting verification for [src/TheLow.flattened.sol:TheLow] "0xfB2160E93816b96559cE333f8Cf30D03989A6955".
+Submitted contract for verification:
+        Response: `OK`
+        GUID: `pqgcrmaabphtqhm1jaqdzys52cwvgde8uaguinc7hwsdcm15ii`
+        URL:
+        https://goerli.etherscan.io/address/0xfb2160e93816b96559ce333f8cf30d03989a6955
+Contract verification status:
+Response: `NOTOK`
+Details: `Pending in queue`
+Contract verification status:
+Response: `OK`
+Details: `Pass - Verified`
+Contract successfully verified
