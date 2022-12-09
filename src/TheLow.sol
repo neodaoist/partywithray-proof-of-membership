@@ -68,7 +68,9 @@ contract TheLow is ERC721, Owned {
                                 _tierInfo[_tokenTiers[tokenId]].name,
                                  '", "Tier Rarity" : "',
                                 _tierInfo[_tokenTiers[tokenId]].rarity,
-                                '"}}'
+                                '"}, "content": {"mimeType": "video/mp4", "hash": "',
+                                 _tierInfo[_tokenTiers[tokenId]].animation_hash, '", "uri": "ipfs://',
+                                 _tierInfo[_tokenTiers[tokenId]].animation_cid, '"}}'
                             )
                         )
                     )
