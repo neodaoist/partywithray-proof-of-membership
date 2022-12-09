@@ -25,12 +25,12 @@ Feature: Partywithray Proof of Membership
         Given 11 NFTs were held for promo and all remaining 211 NFTs were sold
         When we reveal the art
         Then there should be 222 tokens with the following metadata and quantities:
-            | Tier             | Rarity      | Image      | Quantity |
-            | The Ultimate Low | Ultrarare   | ipfs://xyz | 3        |
-            | The Low Low      | Rare        | ipfs://xyz | 11       |
-            | The Medium Low   | Uncommon    | ipfs://xyz | 22       |
-            | The Basic Low    | Common      | ipfs://xyz | 75       |
-            | The Lightest Low | Ultracommon | ipfs://xyz | 111      |
+            | Tier             | Rarity      | Image      | Quantity | Number |
+            | The Ultimate Low | Ultrarare   | ipfs://xyz | 3        | 5      |
+            | The Low Low      | Rare        | ipfs://xyz | 11       | 4      |
+            | The Medium Low   | Uncommon    | ipfs://xyz | 22       | 3      |
+            | The Basic Low    | Common      | ipfs://xyz | 75       | 2      |
+            | The Lightest Low | Ultracommon | ipfs://xyz | 111      | 1      |
         And the ability to update metadata should be frozen
         And the ability to reduce supply should be frozen
 

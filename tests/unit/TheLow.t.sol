@@ -21,8 +21,6 @@ contract TheLowTest is Test {
     string internal constant tier4 = "ipfs://DEF";
     string internal constant tier5 = "ipfs://GHI";
 
-    uint8[] internal updatedTokenTiers;
-
     function setUp() public {
         low = new TheLow(team);
         tierURIs = [
@@ -32,10 +30,6 @@ contract TheLowTest is Test {
             tier3,
             tier4,
             tier5
-        ];
-        updatedTokenTiers = [
-            // 1,1,1,2,2,2,2,2,2,2,2,2,2,2,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5
-            5,3,5,5,4,5,5,5,4,5,5,1,5,4,4,5,5,4,5,4,2,4,5,5,3,4,4,3,4,4,4,5,2,5,5,5,5,5,4,2,5,5,4,3,5,3,1,5,5,4,4,4,4,5,3,5,4,4,5,2,3,5,4,5,5,3,5,5,5,4,5,5,5,5,5,5,4,4,4,4,4,5,5,5,5,5,5,4,3,4,5,3,5,5,5,4,4,3,4,4,5,3,5,5,3,4,3,5,4,5,5,5,5,5,5,4,4,4,4,4,3,5,5,5,4,5,5,3,5,2,4,5,5,4,5,4,4,5,2,5,5,4,5,4,3,4,4,5,5,5,4,5,3,4,4,4,4,5,5,1,4,3,2,4,4,5,5,4,5,4,3,4,2,5,4,5,4,5,5,2,5,5,4,5,4,5,3,3,5,5,4,4,4,5,5,4,5,5,5,5,5,5,5,5,5,5,5,4,4,4,2,5,4,5,4,4,2,5,5,4,5,5
         ];
     }
 
@@ -67,23 +61,6 @@ contract TheLowTest is Test {
         }
     }
 */
-    function testRevert_UpdateMetadata_WhenNotOwner() public {
-        vm.expectRevert("UNAUTHORIZED");
-
-        low.updateMetadata(updatedTokenTiers);
-    }
-
-    function testRevert_UpdateMetadata_WhenInvalidLength() public {
-        uint8[] memory invalidLengthArray = new uint8[](3);
-        invalidLengthArray[0] = 1;
-        invalidLengthArray[1] = 1;
-        invalidLengthArray[2] = 2;
-
-        vm.expectRevert("INVALID_TIERS");
-
-        vm.prank(team);
-        low.updateMetadata(invalidLengthArray);
-    }
 
     /*//////////////////////////////////////////////////////////////
                         UPDATE SUPPLY
@@ -187,4 +164,26 @@ contract TheLowTest is Test {
     // }
 
     event SupplyUpdated(uint8 indexed newSupply);
+
+    /*//////////////////////////////////////////////////////////////
+                        REVEAL
+    //////////////////////////////////////////////////////////////*/
+
+    function testReveal() public {
+        vm.prank(team);
+        low.reveal();
+        for(uint256 i = 1; i <= 222; i++) {
+            assert(low.tier(i) != 0);
+        }
+    }
+
+    function testRevealIsOnlyOwner() public {
+         vm.prank(bob);
+         vm.expectRevert("UNAUTHORIZED");
+         low.reveal();
+    }
+
+    function testRevealSkipsBurned() public {
+
+    }
 }
