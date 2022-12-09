@@ -37,13 +37,13 @@ contract TheLow is ERC721, Owned {
 
     constructor(address bigNightAddr) ERC721("partywithray - The Low", "LOW") Owned(bigNightAddr) {
         // Create the tier info table
-        //                 Name           Rarity        Image CID                  Animation CID                    Animation Hash
-        _tierInfo[0] = Tier('Pre-reveal', 'Pre-reveal', 'TBD -- prereveal square', '', '', 0);
-        _tierInfo[1] = Tier('The Lightest Low', 'Ultracommon', 'TBD -- lowestlow square', '', '', 111);
-        _tierInfo[2] = Tier('The Basic Low', 'Common', 'TBD -- basiclow square', '', '', 75);
-        _tierInfo[3] = Tier('The Medium Low', 'Uncommon', 'TBD -- mediumlow square', 'bafybeih72wvfeo6fest5ombybn3ak5ca7mqip5dzancs7mqrgafaudxx3y', '', 22);
-        _tierInfo[4] = Tier('The Low Low', 'Rare', 'TBD -- lowlow square', 'bafybeiagu3uu5ckzoe7nc2l4ljvh6wser3f5whtxhtayc4prneql6sclq4', '', 11);
-        _tierInfo[5] = Tier('The Ultimate Low', 'Ultrarare', 'TBD -- ultimatelow square', 'bafybeifd52lxad44vtvr5ixinaqsnnjogmrvtib3sluxcnj5m2ofjsrb2a', '', 3);
+        //                   Name                Rarity         Image CID                                                      Animation CID                                                  Animation Hash                                                     Post-reveal quantity (out of 222)
+        _tierInfo[0] = Tier('Pre-reveal',       'Pre-reveal',  'bafybeiftai3ybdl727tbg7ajunjmehbmciinczprk6nxt2xznjxljsmm7y', 'bafybeig5tsvqpky2o5yz3tqjekghpuax6g6liptprebi7w4ghsrq47jppm', 'd02d2df27cd5a92eef66a7c8760ab28c06467532b09f870cff38bc32dd5984ac', 0);
+        _tierInfo[1] = Tier('The Lightest Low', 'Ultracommon', 'bafybeifwg6zzxxbit7diqfojrgskd7eb5mdryhxtenlx2lroaef2mxd5ga', '', '', 111);
+        _tierInfo[2] = Tier('The Basic Low',    'Common',      'bafybeicvdszyeodww2os5z33u5rtorfqw3eae5wv5uqcx2a32ovklcpwoa', '', '', 75);
+        _tierInfo[3] = Tier('The Medium Low',   'Uncommon',    'bafybeif3dupvjfszlc6vro3ruadocemw2r2mt44qomd2baxayb4v3glhey', 'bafybeih72wvfeo6fest5ombybn3ak5ca7mqip5dzancs7mqrgafaudxx3y', 'afcb97e97e179a83ead16c7466725cf3d875a7c92bdb312884ad9db511e0fc52', 22);
+        _tierInfo[4] = Tier('The Low Low',      'Rare',        'bafybeidhj37sswlzaclfmg3eg733gqmopp2ronvfcx7vjh67fequ5cox4a', 'bafybeiagu3uu5ckzoe7nc2l4ljvh6wser3f5whtxhtayc4prneql6sclq4', '1a6139599799f74a919d84064c446b8683ba03eb4619bb62f0e361f94d956ba8', 11);
+        _tierInfo[5] = Tier('The Ultimate Low', 'Ultrarare',   'bafybeia3g433ghgkqofvdyf63vrgs64ybnb6q3glty4qjyk67hdtmaw3wm', 'bafybeifd52lxad44vtvr5ixinaqsnnjogmrvtib3sluxcnj5m2ofjsrb2a', '919a5db6c42bb5e5e974cb9d8c8c4917a3df6b235a406cf7f6ed24fa7694aafb', 3);
 
         // Mint NFTs
         mintBatch(bigNightAddr, 1, MAX_SUPPLY, 0);
@@ -106,6 +106,8 @@ contract TheLow is ERC721, Owned {
    /*//////////////////////////////////////////////////////////////
                         RANDOM REVEAL
     //////////////////////////////////////////////////////////////*/
+    /// Returns one byte of pseudorandom data from a pre-seeded structure.  Re-hashes to get more randomness from the same seend as needed
+    /// @param randdata pre-seeded pseudorandom data struct
     function getRandByte(RandBytes memory randdata) private pure returns (uint8) {
         if(randdata.index >= 8) {
             randdata.data = keccak256(abi.encodePacked(randdata.data));
@@ -138,7 +140,7 @@ contract TheLow is ERC721, Owned {
                 }
             }
         }
-        // Assign any remaining tokenIds to tier 1
+        // Assign any remaining tokenIds to tier 1, unless burned
         for (uint8 tokenId = 1; tokenId <= MAX_SUPPLY; tokenId++) {
             if (_tokenTiers[tokenId] == 0 && _ownerOf[tokenId] != address(0) ) {
                 _tokenTiers[tokenId] = 1;
@@ -146,10 +148,12 @@ contract TheLow is ERC721, Owned {
         }
     }
 
+    /// numeric tier for a given tokenId
     function tier(uint256 tokenId) public view returns (uint8) {
         return _tokenTiers[uint8(tokenId)];
     }
 
+    /// Transfers a contiguous range of tokenIds to a given address -- useful for efficiently transferring a block to a vault
     function batchTransfer(address from, address to, uint256 startTokenId, uint256 endTokenId) public {
         for(uint256 i = startTokenId; i < endTokenId; i++) {
             transferFrom(from, to, i);

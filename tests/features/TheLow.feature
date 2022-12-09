@@ -26,13 +26,12 @@ Feature: Partywithray Proof of Membership
         When we reveal the art
         Then there should be 222 tokens with the following metadata and quantities:
             | Tier             | Rarity      | Image      | Quantity | Number |
-            | The Ultimate Low | Ultrarare   | ipfs://xyz | 3        | 5      |
-            | The Low Low      | Rare        | ipfs://xyz | 11       | 4      |
-            | The Medium Low   | Uncommon    | ipfs://xyz | 22       | 3      |
-            | The Basic Low    | Common      | ipfs://xyz | 75       | 2      |
-            | The Lightest Low | Ultracommon | ipfs://xyz | 111      | 1      |
+            | The Ultimate Low | Ultrarare   | ipfs://bafybeia3g433ghgkqofvdyf63vrgs64ybnb6q3glty4qjyk67hdtmaw3wm | 3        | 5      |
+            | The Low Low      | Rare        | ipfs://bafybeidhj37sswlzaclfmg3eg733gqmopp2ronvfcx7vjh67fequ5cox4a | 11       | 4      |
+            | The Medium Low   | Uncommon    | ipfs://bafybeif3dupvjfszlc6vro3ruadocemw2r2mt44qomd2baxayb4v3glhey | 22       | 3      |
+            | The Basic Low    | Common      | ipfs://bafybeicvdszyeodww2os5z33u5rtorfqw3eae5wv5uqcx2a32ovklcpwoa | 75       | 2      |
+            | The Lightest Low | Ultracommon | ipfs://bafybeifwg6zzxxbit7diqfojrgskd7eb5mdryhxtenlx2lroaef2mxd5ga | 111      | 1      |
         And the ability to update metadata should be frozen
-        And the ability to reduce supply should be frozen
 
     Scenario: Reveal when does not sell out
         Given 11 NFTs were held for promo and less than remaining 211 NFTs were sold

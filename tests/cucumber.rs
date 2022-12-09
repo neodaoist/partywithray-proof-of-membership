@@ -84,7 +84,7 @@ async fn verify_pre_reveal_art(world: &mut SCWorld, nft_count_str: String) {
     let nft_count: i32 = nft_count_str.parse().expect("Number of NFTs should be a number");
     for i in 1..=nft_count {
         let jsondata = lookup_metadata(world, i).await;
-        assert_eq!(&jsondata["image"],"ipfs://TBD -- prereveal square");  // FIXME -- Real IPFS URI here
+        assert_eq!(&jsondata["image"],"ipfs://bafybeiftai3ybdl727tbg7ajunjmehbmciinczprk6nxt2xznjxljsmm7y");
     }
 }
 
@@ -182,19 +182,28 @@ async fn check_reveal(world: &mut SCWorld, step: &Step, total_count: i32) {
 
         let tiernum: usize = tier.into();
         println!("TokenID {} is in tier {}", i, tiernum);
+
         assert!(tiers.get(&tiernum).is_some());
-        //assert_eq!(tiers.get(&tiernum).unwrap().name,&jsondata["attributes"]["Tier Name"]);
-        //assert_eq!(tiers.get(&tiernum).unwrap().rarity,&jsondata["attributes"]["Tier Rarity"]);
-        //assert_eq!(tiers.get(&tiernum).unwrap().image_uri,&jsondata["image"]);
+        assert_eq!(tiers.get(&tiernum).unwrap().name,&jsondata["attributes"]["Tier Name"]);
+        assert_eq!(tiers.get(&tiernum).unwrap().rarity,&jsondata["attributes"]["Tier Rarity"]);
+        assert_eq!(tiers.get(&tiernum).unwrap().image_uri,&jsondata["image"]);
 
         token_count_by_tier[tiernum] += 1;
     }
     for i in 0..6 {
         println!("Tier {}: count: {}", i, token_count_by_tier[i]);
+        if i > 0 {
+            assert_eq!(token_count_by_tier[i], tiers.get(&i).expect("Tier data not found").expected_quantity);
+        }
     }
-    println!("--------");
-}
 
+}
+/*
+#[then(regex = r#"the ability to update metadata should be frozen"#)]
+async fn verify_reveal_frozen(world: &mut SCWorld) {
+    // FIXME: How to verify this?  Maybe gather an array of tiers, call reveal again, and make sure it hasn't changed?
+}
+*/
 /* FIXME -- borrow checker problems with the address
 #[then(regex = r#"^royalties should be set at ([\d]+)% going to the "(.*)" address$"#)]
 async fn verify_royalty(world: &mut SCWorld, royalty_address_name: String) {
