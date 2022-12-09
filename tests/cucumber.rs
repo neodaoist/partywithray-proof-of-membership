@@ -169,7 +169,24 @@ async fn check_reveal(world: &mut SCWorld, step: &Step, total_count: i32) {
     } else {
         panic!("Step missing data table");
     }
-    thread::sleep(time::Duration::from_secs(2)); // sync issues between reveal call and this
+    println!("Waiting for reveal...");
+
+    // sync issues between reveal call and this
+    /*
+    for i in 0..10 {
+        let tier: u8 = world.thelow_contract.as_ref().expect("TheLow Contract should be initialized")
+            .method::<_, u8>("tier", U256::from(1))
+            .expect("Error finding tier method").call().await.expect("Error sending tier call");
+        if tier > 0 {
+            break;
+        } else {
+            println!("Polling for reveal.  Retry {}", i);
+            let reveal_call = world.thelow_contract.as_ref().expect("Contract must be initialized").reveal();
+            task::block_on(reveal_call.send()).expect("Reveal call failed");
+        }
+*/
+        thread::sleep(time::Duration::from_secs(10));
+//    }
 
     // Loop through all NFTs.  Check that the metadata matches the tier number.
     // Keep a count of how many we have in each tier
