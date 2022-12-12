@@ -9,6 +9,7 @@ import "./utils.sol";
 contract TheLow is ERC721, Owned {
     //
     event SupplyUpdated(uint8 indexed newSupply);
+    event BatchMetadataUpdate(uint256 _fromTokenId, uint256 _toTokenId);
     // event MetadataUpdated(string uri);
     // event MetadataFrozen();
 
@@ -47,6 +48,7 @@ contract TheLow is ERC721, Owned {
 
         // Mint NFTs
         mintBatch(bigNightAddr, 1, MAX_SUPPLY, 0);
+
     }
 
     /*//////////////////////////////////////////////////////////////
@@ -64,11 +66,14 @@ contract TheLow is ERC721, Owned {
                                 '{"name": "The Low ', utils.uint256ToString(tokenId), '/222',
                                 '", "description": "partywithray Proof of Membership", "image": "ipfs://',
                                 _tierInfo[_tokenTiers[tokenId]].image_cid,
+                                '", "animation_url": "ipfs://', _tierInfo[_tokenTiers[tokenId]].animation_cid,
                                 '", "attributes": { "Tier Name": "',
                                 _tierInfo[_tokenTiers[tokenId]].name,
                                  '", "Tier Rarity" : "',
                                 _tierInfo[_tokenTiers[tokenId]].rarity,
-                                '"}}'
+                                '"}, "content": {"mimeType": "video/mp4", "hash": "',
+                                 _tierInfo[_tokenTiers[tokenId]].animation_hash, '", "uri": "ipfs://',
+                                 _tierInfo[_tokenTiers[tokenId]].animation_cid, '"}}'
                             )
                         )
                     )
@@ -146,6 +151,7 @@ contract TheLow is ERC721, Owned {
                 _tokenTiers[tokenId] = 1;
             }
         }
+        emit BatchMetadataUpdate(1, 222);
     }
 
     /// numeric tier for a given tokenId

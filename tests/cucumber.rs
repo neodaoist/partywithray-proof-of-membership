@@ -85,6 +85,9 @@ async fn verify_pre_reveal_art(world: &mut SCWorld, nft_count_str: String) {
     for i in 1..=nft_count {
         let jsondata = lookup_metadata(world, i).await;
         assert_eq!(&jsondata["image"],"ipfs://bafybeiftai3ybdl727tbg7ajunjmehbmciinczprk6nxt2xznjxljsmm7y");
+        assert_eq!(&jsondata["animation_url"],"ipfs://bafybeig5tsvqpky2o5yz3tqjekghpuax6g6liptprebi7w4ghsrq47jppm");
+        assert_eq!(&jsondata["content"]["uri"],"ipfs://bafybeig5tsvqpky2o5yz3tqjekghpuax6g6liptprebi7w4ghsrq47jppm");
+        assert_eq!(&jsondata["content"]["hash"],"d02d2df27cd5a92eef66a7c8760ab28c06467532b09f870cff38bc32dd5984ac");
     }
 }
 
@@ -151,6 +154,8 @@ async fn check_reveal(world: &mut SCWorld, step: &Step, total_count: i32) {
         name: & 'a String,
         rarity: & 'a String,
         image_uri: & 'a String,
+        animation_uri: & 'a String,
+        animation_hash: & 'a String,
         expected_quantity: i32,
     }
     let mut tiers: HashMap<usize, TierInfo> = HashMap::new();
@@ -158,11 +163,13 @@ async fn check_reveal(world: &mut SCWorld, step: &Step, total_count: i32) {
     if let Some(table) = step.table.as_ref() {
         for row in table.rows.iter().skip(1) { // skip header
             let tier_info = TierInfo {
-                number: usize::from_str(&row[4]).expect("Tier number should be a number"),
+                number: usize::from_str(&row[6]).expect("Tier number should be a number"),
                 name: &row[0],
                 rarity: &row[1],
                 image_uri: &row[2],
-                expected_quantity: i32::from_str(&row[3]).expect("Tier number should be a number"),
+                animation_uri: &row[3],
+                animation_hash: &row[4],
+                expected_quantity: i32::from_str(&row[5]).expect("Tier number should be a number"),
             };
             tiers.insert(tier_info.number, tier_info);
         }
@@ -185,7 +192,7 @@ async fn check_reveal(world: &mut SCWorld, step: &Step, total_count: i32) {
             task::block_on(reveal_call.send()).expect("Reveal call failed");
         }
 */
-        thread::sleep(time::Duration::from_secs(10));
+        thread::sleep(time::Duration::from_secs(1));
 //    }
 
     // Loop through all NFTs.  Check that the metadata matches the tier number.
@@ -199,11 +206,14 @@ async fn check_reveal(world: &mut SCWorld, step: &Step, total_count: i32) {
 
         let tiernum: usize = tier.into();
         println!("TokenID {} is in tier {}", i, tiernum);
-
         assert!(tiers.get(&tiernum).is_some());
         assert_eq!(tiers.get(&tiernum).unwrap().name,&jsondata["attributes"]["Tier Name"]);
         assert_eq!(tiers.get(&tiernum).unwrap().rarity,&jsondata["attributes"]["Tier Rarity"]);
         assert_eq!(tiers.get(&tiernum).unwrap().image_uri,&jsondata["image"]);
+        assert_eq!(tiers.get(&tiernum).unwrap().animation_uri,&jsondata["animation_url"]);
+        assert_eq!("video/mp4",&jsondata["content"]["mimeType"]);
+        assert_eq!(tiers.get(&tiernum).unwrap().animation_hash,&jsondata["content"]["hash"]);
+        assert_eq!(tiers.get(&tiernum).unwrap().animation_uri,&jsondata["content"]["uri"]);
 
         token_count_by_tier[tiernum] += 1;
     }

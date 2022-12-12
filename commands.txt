@@ -1,0 +1,57 @@
+# Flatten
+rm src/TheLow.flattened.sol
+forge flatten --output src/TheLow.flattened.sol src/TheLow.sol
+
+# Deploy
+forge create --rpc-url $RPC_URL --constructor-args $TESTNET_DEPLOYER_ADDR --private-key $TESTNET_PK src/TheLow.flattened.sol:TheLow --etherscan-api-key $ETHERSCAN_KEY  --verify
+
+
+# Post-deploy verify
+forge verify-contract --chain-id 5 --num-of-optimizations 200 --watch --constructor-args  $(cast abi-encode "constructor(address)" $TESTNET_DEPLOYER_ADDR)  --compiler-version v0.8.13 0x044b41AE8f21D8E3A3878fcfe5dc33Ca3a2fd5Ec src/TheLow.flattened.sol:TheLow $ETHERSCAN_KEY
+
+
+
+
+[⠒] Compiling...
+No files changed, compilation skipped
+Deployer: 0xf068e6F80fA1d55A27be3408cbdad3fCDa704514
+Deployed to: 0xfB2160E93816b96559cE333f8Cf30D03989A6955
+Transaction hash: 0x0fd3dbe400759c26ce8bc766c264f31c97962fd89919c173b166dbcb713a03ce
+Starting contract verification...
+Waiting for etherscan to detect contract deployment...
+Start verifying contract `0xfb2160e93816b96559ce333f8cf30d03989a6955` deployed on goerli
+
+Submitting verification for [src/TheLow.flattened.sol:TheLow] "0xfB2160E93816b96559cE333f8Cf30D03989A6955".
+
+Submitting verification for [src/TheLow.flattened.sol:TheLow] "0xfB2160E93816b96559cE333f8Cf30D03989A6955".
+
+Submitting verification for [src/TheLow.flattened.sol:TheLow] "0xfB2160E93816b96559cE333f8Cf30D03989A6955".
+
+Submitting verification for [src/TheLow.flattened.sol:TheLow] "0xfB2160E93816b96559cE333f8Cf30D03989A6955".
+
+Submitting verification for [src/TheLow.flattened.sol:TheLow] "0xfB2160E93816b96559cE333f8Cf30D03989A6955".
+
+Submitting verification for [src/TheLow.flattened.sol:TheLow] "0xfB2160E93816b96559cE333f8Cf30D03989A6955".
+Submitted contract for verification:
+        Response: `OK`
+        GUID: `pqgcrmaabphtqhm1jaqdzys52cwvgde8uaguinc7hwsdcm15ii`
+        URL:
+        https://goerli.etherscan.io/address/0xfb2160e93816b96559ce333f8cf30d03989a6955
+Contract verification status:
+Response: `NOTOK`
+Details: `Pending in queue`
+Contract verification status:
+Response: `OK`
+Details: `Pass - Verified`
+Contract successfully verified
+
+
+
+Transaction has been reverted by the EVM: { "blockHash": "0x6d40b5705979414ccfa50752fc30f7b2544394bee9462ceab56b5b6f6479e2d7", "blockNumber": 8105462, "contractAddress": null, "cumulativeGasUsed": 947332, "effectiveGasPrice": "0x7735946a", "from": "0xf068e6f80fa1d55a27be3408cbdad3fcda704514", "gasUsed": 312603, "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000", "status": false, "to": "0xfb2160e93816b96559ce333f8cf30d03989a6955", "transactionHash": "0x3dce8beae0d35572b2929c4f8fb2972ca2fa3b9ba5b82698e88890f30435821f", "transactionIndex": 3, "type": "0x2", "events": {} }
+
+
+ 0x69b79e3d630198577b3e2b18d88e8223325e6aba  -- v4 -- pre-reveal
+
+0x0d2c8746627f4ee8c307cacd0ecbd6bbf15af354 -- v5 -- revealed
+
+0x7cefb6a119bb6353e368cae1ff93644a2e869389 -- revealed and emitted
