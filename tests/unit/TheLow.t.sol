@@ -80,7 +80,6 @@ contract TheLowTest is Test {
             vm.expectRevert("NOT_MINTED");
             low.ownerOf(i);
         }
-        console.log("Hi there");
     }
 
     function testEvent_UpdateSupply() public {
@@ -91,9 +90,22 @@ contract TheLowTest is Test {
         low.updateSupply(137);
     }
 
+    function test_UpdateSupplyDoesntBurnSold() public {
+        console.log("Transferring");
+        vm.prank(team);
+        low.transferFrom(team,alice,201);
+        console.log("Burning");
+        vm.prank(team);
+        low.updateSupply(100);
+        assertEq(low.totalSupply(), 100);
+        assertEq(low.ownerOf(201),alice);
+        console.log("Checking");
+        //vm.expectRevert("NOT MINTED");
+        //low.ownerOf(100);
+    }
+
     function testRevert_UpdateSupply_WhenNotOwner() public {
         vm.expectRevert("UNAUTHORIZED");
-
         low.updateSupply(137);
     }
 

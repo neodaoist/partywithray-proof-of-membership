@@ -31,7 +31,7 @@ Feature: Partywithray Proof of Membership
             | The Medium Low   | Uncommon    | ipfs://bafybeif3dupvjfszlc6vro3ruadocemw2r2mt44qomd2baxayb4v3glhey | ipfs://bafybeifolz3aej7yz4huykyrzegj2fejicvybyu5sgmuthudex25fylyfq | 05bbc9c8bea2dc831d2e760c37f760a65e012ea7d5aab8fb92f26ae80424aad4 | 22       | 3      |
             | The Basic Low    | Common      | ipfs://bafybeicvdszyeodww2os5z33u5rtorfqw3eae5wv5uqcx2a32ovklcpwoa | ipfs://bafybeifboxzmkmcik755qguivpbtrca33pasz3xxwjziv27zeuxuoaaet4 | af8c6f9c161ce427521dc654cf90d22b78580f2a60fb52bb553a428158a62460 | 75       | 2      |
             | The Lightest Low | Ultracommon | ipfs://bafybeifwg6zzxxbit7diqfojrgskd7eb5mdryhxtenlx2lroaef2mxd5ga | ipfs://bafybeih72wvfeo6fest5ombybn3ak5ca7mqip5dzancs7mqrgafaudxx3y | afcb97e97e179a83ead16c7466725cf3d875a7c92bdb312884ad9db511e0fc52 | 111      | 1      |
-        And the ability to update metadata should be frozen
+        And calling reveal a second time should not change any tiers
 
     Scenario: Reveal when does not sell out
         Given 11 NFTs were held for promo and less than remaining 211 NFTs were sold

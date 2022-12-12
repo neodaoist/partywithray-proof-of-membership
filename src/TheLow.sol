@@ -97,9 +97,14 @@ constructor(address bigNightAddr) ERC721("partywithray - The Low", "LOW") Owned(
     // TODO account for existing tokens w/ owners
     function updateSupply(uint8 _newSupply) public onlyOwner {
         require(_newSupply < totalSupply, "INVALID_SUPPLY");
-
-        for (uint256 i = _newSupply + 1; i <= totalSupply; i++) {
-            _burn(i);
+        uint256 currentSupply = totalSupply;
+        uint8 index = MAX_SUPPLY;  // Burn the highest tokenIds for aesthetics
+        for(uint8 index = MAX_SUPPLY; index > 0 && currentSupply > _newSupply; index--) {
+            if(_ownerOf[index] == msg.sender) {  // Only burn the tokens we own
+                console.log("Burning: ", index, ", Owned by: ", _ownerOf[index]);
+                _burn(index);
+                currentSupply--;
+            }
         }
         totalSupply = _newSupply;
 
