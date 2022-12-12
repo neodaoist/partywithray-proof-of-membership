@@ -46,25 +46,11 @@ contract TheLowTest is Test {
         //}
     }
 
-    /*//////////////////////////////////////////////////////////////
-                        UPDATE METADATA
-    //////////////////////////////////////////////////////////////*/
 
-// FIXME: Revisit this
-/*
-    function test_UpdateMetadata() public {
-        vm.prank(team);
-        low.updateMetadata(updatedTokenTiers);
 
-        for (uint256 i = 1; i <= low.totalSupply(); i++) {
-            assertEq(low.tokenURI(i), tierURIs[updatedTokenTiers[i - 1]]);
-        }
-    }
-*/
-
-    /*//////////////////////////////////////////////////////////////
+    /* ------------------------------------------------------------
                         UPDATE SUPPLY
-    //////////////////////////////////////////////////////////////*/
+    ------------------------------------------------------------ */
 
     function test_UpdateSupply() public {
         vm.prank(team);
@@ -100,8 +86,8 @@ contract TheLowTest is Test {
         assertEq(low.totalSupply(), 100);
         assertEq(low.ownerOf(201),alice);
         console.log("Checking");
-        //vm.expectRevert("NOT MINTED");
-        //low.ownerOf(100);
+        vm.expectRevert("NOT_MINTED");
+        low.ownerOf(100);
     }
 
     function testRevert_UpdateSupply_WhenNotOwner() public {
@@ -123,44 +109,15 @@ contract TheLowTest is Test {
         low.updateSupply(223);
     }
 
-    /*//////////////////////////////////////////////////////////////
-                        TOKEN URI
-    //////////////////////////////////////////////////////////////*/
-
-    // function testTokenUri() public {
-    //     low.mint(alice, 1, 0);
-    //     low.mint(bob, 2, 1);
-    //     low.mint(alice, 3, 2);
-
-    //     assertEq(low.tokenURI(1), tier1);
-    //     assertEq(low.tokenURI(2), tier2);
-    //     assertEq(low.tokenURI(3), tier3);
-    // }
-
-    /*//////////////////////////////////////////////////////////////
-                        MINT
-    //////////////////////////////////////////////////////////////*/
-
-    // function testMint() public {
-    //     low.mint(alice, 1, 0);
-    //     low.mint(bob, 2, 1);
-    //     low.mint(alice, 3, 2);
-
-    //     assertEq(low.balanceOf(alice), 2);
-    //     assertEq(low.balanceOf(bob), 1);
-    //     assertEq(low.ownerOf(1), alice);
-    //     assertEq(low.ownerOf(2), bob);
-    //     assertEq(low.ownerOf(1), alice);
-    // }
 
     function testMintBatch() public {
         // Minting happens in the constructor
         assertEq(low.totalSupply(), 222);
     }
 
-    /*//////////////////////////////////////////////////////////////
+    /* -------------------------------------------------------------
                         BURN
-    //////////////////////////////////////////////////////////////*/
+    ------------------------------------------------------------- */
 
     // function testBurn() public {
     //     low.mint(alice, 1, 0);
@@ -178,9 +135,9 @@ contract TheLowTest is Test {
 
     event SupplyUpdated(uint8 indexed newSupply);
 
-    /*//////////////////////////////////////////////////////////////
+    /* -----------------------------------------------
                         REVEAL
-    //////////////////////////////////////////////////////////////*/
+    ----------------------------------------------- */
 
     function testReveal() public {
         vm.prank(team);
@@ -199,4 +156,22 @@ contract TheLowTest is Test {
     function testRevealSkipsBurned() public {
 
     }
+
+    function testDivideRoundUp() public {
+        assertEq(10,low.divideRoundUp(99,10,1));
+        assertEq(10,low.divideRoundUp(100,10,1));
+        assertEq(11,low.divideRoundUp(101,10,1));
+        assertEq(0,low.divideRoundUp(0,20,1));
+        assertEq(26,low.divideRoundUp(251,10,1));
+
+        assertEq(3,low.divideRoundUp(222,7400,100));
+        assertEq(11,low.divideRoundUp(222,2019,100));   // 222/20.19 = 11
+        assertEq(22,low.divideRoundUp(222,1010,100));     // 222/10.1 = 22
+        assertEq(75,low.divideRoundUp(222,296,100));    // 222/2.96 = 75
+        assertEq(111,low.divideRoundUp(222,200,100));
+
+        vm.expectRevert();
+        low.divideRoundUp(100,0,1);
+    }
+
 }

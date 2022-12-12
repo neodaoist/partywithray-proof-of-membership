@@ -98,10 +98,10 @@ constructor(address bigNightAddr) ERC721("partywithray - The Low", "LOW") Owned(
     function updateSupply(uint8 _newSupply) public onlyOwner {
         require(_newSupply < totalSupply, "INVALID_SUPPLY");
         uint256 currentSupply = totalSupply;
-        uint8 index = MAX_SUPPLY;  // Burn the highest tokenIds for aesthetics
+        // Burn the highest tokenIds for aesthetics
         for(uint8 index = MAX_SUPPLY; index > 0 && currentSupply > _newSupply; index--) {
             if(_ownerOf[index] == msg.sender) {  // Only burn the tokens we own
-                console.log("Burning: ", index, ", Owned by: ", _ownerOf[index]);
+                //FIXME console.log("Burning: ", index, ", Owned by: ", _ownerOf[index]);
                 _burn(index);
                 currentSupply--;
             }
@@ -152,13 +152,13 @@ constructor(address bigNightAddr) ERC721("partywithray - The Low", "LOW") Owned(
                 if(index < 128 ) {
                     randIndex = randIndex & 0x7F;  // Optimization: use 7 bits of entropy if we're below 128 items
                 }
-console.log("Next Rand: ",randIndex,", Index: ",index);
+//FIXME console.log("Next Rand: ",randIndex,", Index: ",index);
                 if (randIndex <= index) {
                     // assign the tokenId rolled to the tier
                     _tokenTiers[lottery[randIndex]] = tiernum;
                     // remove the item from the lottery by replacing it with the item at the end of the array to avoid shifting
                     lottery[randIndex] = lottery[index];
-console.log("Assigned tokenId to tier: ",lottery[index],tiernum);
+//FIXME console.log("Assigned tokenId to tier: ",lottery[index],tiernum);
                     index--;
                     targetAmount--;
                 }
@@ -184,6 +184,13 @@ console.log("Assigned tokenId to tier: ",lottery[index],tiernum);
         for(uint256 i = startTokenId; i < endTokenId; i++) {
             transferFrom(from, to, i);
         }
+    }
+
+    /// Divide and round UP
+    /// @dev does not check for division by zero
+    function divideRoundUp(uint numerator, uint denominator, uint precision) public pure returns(uint8 quotient) {
+        // Add precision
+        return uint8(((numerator * precision + denominator - 1) / denominator));
     }
 
 }

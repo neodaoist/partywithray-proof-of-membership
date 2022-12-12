@@ -41,6 +41,14 @@ Feature: Partywithray Proof of Membership
         And the ability to update metadata should be frozen
         And the ability to reduce supply should be frozen
 
+    Scenario: Reducing Supply does not change titles
+        Given an initial mint of 222
+        And Bob buys tokenId 201
+        And Alice buys tokenId 83
+        And 98 other people buy various tokenIds, for a total sale of 100 items
+        When the team reduces the supply to 100
+        Then the title of tokenId 201 should be "The Low 201/222" and its owner should be Bob
+        And the title of tokenId 83 should be "The Low 83/222" and its owner should be Alice
 
         # Reveal goals:
     # rarity IDs are not known in advance (even to the team) but provably fair
