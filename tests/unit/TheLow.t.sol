@@ -80,6 +80,7 @@ contract TheLowTest is Test {
             vm.expectRevert("NOT_MINTED");
             low.ownerOf(i);
         }
+        console.log("Hi there");
     }
 
     function testEvent_UpdateSupply() public {
