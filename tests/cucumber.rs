@@ -176,24 +176,18 @@ async fn check_reveal(world: &mut SCWorld, step: &Step, total_count: i32) {
     } else {
         panic!("Step missing data table");
     }
-    println!("Waiting for reveal...");
 
-    // sync issues between reveal call and this
-    /*
-    for i in 0..10 {
-        let tier: u8 = world.thelow_contract.as_ref().expect("TheLow Contract should be initialized")
-            .method::<_, u8>("tier", U256::from(1))
-            .expect("Error finding tier method").call().await.expect("Error sending tier call");
-        if tier > 0 {
-            break;
-        } else {
-            println!("Polling for reveal.  Retry {}", i);
-            let reveal_call = world.thelow_contract.as_ref().expect("Contract must be initialized").reveal();
-            task::block_on(reveal_call.send()).expect("Reveal call failed");
-        }
-*/
-        thread::sleep(time::Duration::from_secs(1));
-//    }
+    // Check that tokenId 0 is owned by 0 and in tier 0
+    let tier: u8 = world.thelow_contract.as_ref().expect("TheLow Contract should be initialized")
+        .method::<_, u8>("tier", U256::from(0))
+        .expect("Error finding tier method").call().await.expect("Error sending tier call");
+    assert_eq!(tier, 0, "Tier should be 0 for TokenId 0");
+/*
+    let owner: Address = world.thelow_contract.as_ref().expect("TheLow Contract should be initialized")
+        .method::<_, Address>("ownerOf", U256::from(0))
+        .expect("Error finding owner_of method").call().await.expect("Error sending owner_of call");
+    assert!(owner.is_zero());
+    */
 
     // Loop through all NFTs.  Check that the metadata matches the tier number.
     // Keep a count of how many we have in each tier

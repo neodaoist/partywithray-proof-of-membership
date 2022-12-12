@@ -4,12 +4,14 @@ pragma solidity 0.8.13;
 import {ERC721} from "solmate/tokens/ERC721.sol";
 import {Owned} from "solmate/auth/Owned.sol";
 import "./utils.sol";
+import "forge-std/console.sol";     // FIXME: Remove before mainnet deploy
 
 /// @notice
 contract TheLow is ERC721, Owned {
     //
     event SupplyUpdated(uint8 indexed newSupply);
     event BatchMetadataUpdate(uint256 _fromTokenId, uint256 _toTokenId);
+    event UpdateMetadata(uint256 tokenId);
     // event MetadataUpdated(string uri);
     // event MetadataFrozen();
 
@@ -29,32 +31,28 @@ contract TheLow is ERC721, Owned {
         bytes32 data;
         uint8 index;
     }
-   Tier[6] internal _tierInfo;
-   uint8[MAX_SUPPLY+1] internal _tokenTiers;  // TokenIds are 1-indexed
+    Tier[6] internal _tierInfo;
+    uint8[MAX_SUPPLY+1] internal _tokenTiers;  // TokenIds are 1-indexed
 
-    /*//////////////////////////////////////////////////////////////
-                        CONSTRUCTOR
-    //////////////////////////////////////////////////////////////*/
+/*
+CONSTRUCTOR
+*/
 
-    constructor(address bigNightAddr) ERC721("partywithray - The Low", "LOW") Owned(bigNightAddr) {
-        // Create the tier info table
+constructor(address bigNightAddr) ERC721("partywithray - The Low", "LOW") Owned(bigNightAddr) {
+    // Create the tier info table
         //                   Name                Rarity         Image CID                                                      Animation CID                                                  Animation Hash                                                     Post-reveal quantity (out of 222)
-        _tierInfo[0] = Tier('Pre-reveal',       'Pre-reveal',  'bafybeiftai3ybdl727tbg7ajunjmehbmciinczprk6nxt2xznjxljsmm7y', 'bafybeig5tsvqpky2o5yz3tqjekghpuax6g6liptprebi7w4ghsrq47jppm', 'd02d2df27cd5a92eef66a7c8760ab28c06467532b09f870cff38bc32dd5984ac', 0);
-        _tierInfo[1] = Tier('The Lightest Low', 'Ultracommon', 'bafybeifwg6zzxxbit7diqfojrgskd7eb5mdryhxtenlx2lroaef2mxd5ga', 'bafybeih72wvfeo6fest5ombybn3ak5ca7mqip5dzancs7mqrgafaudxx3y', 'afcb97e97e179a83ead16c7466725cf3d875a7c92bdb312884ad9db511e0fc52', 111);
-        _tierInfo[2] = Tier('The Basic Low',    'Common',      'bafybeicvdszyeodww2os5z33u5rtorfqw3eae5wv5uqcx2a32ovklcpwoa', 'bafybeifboxzmkmcik755qguivpbtrca33pasz3xxwjziv27zeuxuoaaet4', 'af8c6f9c161ce427521dc654cf90d22b78580f2a60fb52bb553a428158a62460', 75);
-        _tierInfo[3] = Tier('The Medium Low',   'Uncommon',    'bafybeif3dupvjfszlc6vro3ruadocemw2r2mt44qomd2baxayb4v3glhey', 'bafybeifolz3aej7yz4huykyrzegj2fejicvybyu5sgmuthudex25fylyfq', '05bbc9c8bea2dc831d2e760c37f760a65e012ea7d5aab8fb92f26ae80424aad4', 22);
-        _tierInfo[4] = Tier('The Low Low',      'Rare',        'bafybeidhj37sswlzaclfmg3eg733gqmopp2ronvfcx7vjh67fequ5cox4a', 'bafybeifd52lxad44vtvr5ixinaqsnnjogmrvtib3sluxcnj5m2ofjsrb2a', '919a5db6c42bb5e5e974cb9d8c8c4917a3df6b235a406cf7f6ed24fa7694aafb', 11);
-        _tierInfo[5] = Tier('The Ultimate Low', 'Ultrarare',   'bafybeia3g433ghgkqofvdyf63vrgs64ybnb6q3glty4qjyk67hdtmaw3wm', 'bafybeiep5oh5pu536to6vhvfjb5ztkx2ykqpfbr2zalexzgq6zqjjyr54u', '8f23e95c39df8bdd0e94b7c0aad3d989af00f449b16911e53e235797e89d4879', 3);
+    _tierInfo[0] = Tier('Pre-reveal',       'Pre-reveal',  'bafybeiftai3ybdl727tbg7ajunjmehbmciinczprk6nxt2xznjxljsmm7y', 'bafybeig5tsvqpky2o5yz3tqjekghpuax6g6liptprebi7w4ghsrq47jppm', 'd02d2df27cd5a92eef66a7c8760ab28c06467532b09f870cff38bc32dd5984ac', 0);
+    _tierInfo[1] = Tier('The Lightest Low', 'Ultracommon', 'bafybeifwg6zzxxbit7diqfojrgskd7eb5mdryhxtenlx2lroaef2mxd5ga', 'bafybeih72wvfeo6fest5ombybn3ak5ca7mqip5dzancs7mqrgafaudxx3y', 'afcb97e97e179a83ead16c7466725cf3d875a7c92bdb312884ad9db511e0fc52', 111);
+    _tierInfo[2] = Tier('The Basic Low',    'Common',      'bafybeicvdszyeodww2os5z33u5rtorfqw3eae5wv5uqcx2a32ovklcpwoa', 'bafybeifboxzmkmcik755qguivpbtrca33pasz3xxwjziv27zeuxuoaaet4', 'af8c6f9c161ce427521dc654cf90d22b78580f2a60fb52bb553a428158a62460', 75);
+    _tierInfo[3] = Tier('The Medium Low',   'Uncommon',    'bafybeif3dupvjfszlc6vro3ruadocemw2r2mt44qomd2baxayb4v3glhey', 'bafybeifolz3aej7yz4huykyrzegj2fejicvybyu5sgmuthudex25fylyfq', '05bbc9c8bea2dc831d2e760c37f760a65e012ea7d5aab8fb92f26ae80424aad4', 22);
+    _tierInfo[4] = Tier('The Low Low',      'Rare',        'bafybeidhj37sswlzaclfmg3eg733gqmopp2ronvfcx7vjh67fequ5cox4a', 'bafybeifd52lxad44vtvr5ixinaqsnnjogmrvtib3sluxcnj5m2ofjsrb2a', '919a5db6c42bb5e5e974cb9d8c8c4917a3df6b235a406cf7f6ed24fa7694aafb', 11);
+    _tierInfo[5] = Tier('The Ultimate Low', 'Ultrarare',   'bafybeia3g433ghgkqofvdyf63vrgs64ybnb6q3glty4qjyk67hdtmaw3wm', 'bafybeiep5oh5pu536to6vhvfjb5ztkx2ykqpfbr2zalexzgq6zqjjyr54u', '8f23e95c39df8bdd0e94b7c0aad3d989af00f449b16911e53e235797e89d4879', 3);
 
-        // Mint NFTs
-        mintBatch(bigNightAddr, 1, MAX_SUPPLY, 0);
+    // Mint NFTs
+    mintBatch(bigNightAddr, 1, MAX_SUPPLY, 0);
+}
 
-    }
-
-    /*//////////////////////////////////////////////////////////////
-                        TOKEN URI
-    //////////////////////////////////////////////////////////////*/
-
+    /* TOKEN URI */
     function tokenURI(uint256 tokenId) public view override returns (string memory) {
         return string(
             abi.encodePacked(
@@ -82,9 +80,9 @@ contract TheLow is ERC721, Owned {
         );
     }
 
-    /*//////////////////////////////////////////////////////////////
+    /* -----------------------------------------------------------
                         BATCH MINT
-    //////////////////////////////////////////////////////////////*/
+    ----------------------------------------------------------- */
     function mintBatch(address to, uint256 start, uint256 end, uint8 tierIndex) public {
         for(uint i = start; i <= end; i++) {
             _mint(to, i);
@@ -92,9 +90,9 @@ contract TheLow is ERC721, Owned {
         }
     }
 
-    /*//////////////////////////////////////////////////////////////
+    /* -----------------------------------------------------------
                         UPDATE SUPPLY
-    //////////////////////////////////////////////////////////////*/
+    ----------------------------------------------------------- */
 
     // TODO account for existing tokens w/ owners
     function updateSupply(uint8 _newSupply) public onlyOwner {
@@ -108,9 +106,9 @@ contract TheLow is ERC721, Owned {
         emit SupplyUpdated(_newSupply);
     }
 
-   /*//////////////////////////////////////////////////////////////
+    /* --------------------------------------------------------------
                         RANDOM REVEAL
-    //////////////////////////////////////////////////////////////*/
+    -------------------------------------------------------------- */
     /// Returns one byte of pseudorandom data from a pre-seeded structure.  Re-hashes to get more randomness from the same seend as needed
     /// @param randdata pre-seeded pseudorandom data struct
     function getRandByte(RandBytes memory randdata) private pure returns (uint8) {
@@ -123,25 +121,41 @@ contract TheLow is ERC721, Owned {
         return uint8(value);
     }
 
+
     /// @dev Uses blocks.prevrandao as random source.  Small MEV risk but simple.  Could use Chainlink VRF here too.
-    function reveal() public onlyOwner {
+    function reveal() onlyOwner public {
         // Initialize PRNG -- using blocks.
         RandBytes memory randdata = RandBytes(keccak256(abi.encodePacked(block.difficulty)), 0);
+
+        // Build an array of all the un-burned tokenIds
+        uint8[] memory lottery = new uint8[](totalSupply);
+        uint8 index = 0;
+        for (uint8 tokenId = 1; tokenId <= MAX_SUPPLY; tokenId++) {
+            if ( _ownerOf[tokenId] != address(0) ) {
+                lottery[index] = tokenId;  // Can't use .push on memory arrays so we maintain our own index
+                index++;
+            }
+        }
+        assert(index == totalSupply);  // FIXME: Remove before mainnet deploy
+        index--;  // index will be totalSupply, or one past the end of lottery's used range
+
         // Roll random dice for tiers 5 through 2
         for (uint8 tiernum = 5; tiernum > 1; tiernum-- ) {
-            uint targetAmount = _tierInfo[tiernum].portion;
-            for(uint count = 0; count < targetAmount; count++) {
-//              for(int count = 0; count < 10; count++) { // FIXME hardcoded
+            uint targetAmount = _tierInfo[tiernum].portion;   // FIXME: Proportional amounts if we don't sell out
+            while(targetAmount > 0) {
                 uint8 randIndex = getRandByte(randdata);
-                // re-roll if out of range or we've already assigned a non-zero tier.
-                // This uses some gas but saves on managing complex data structures, which would end up using more.
-                if ( randIndex >= MAX_SUPPLY ) {
-                    count--;
-                } else if (_tokenTiers[randIndex] != 0 || _ownerOf[randIndex] == address(0)) {
-                    count--;
-                } else {
-                    // assign the tokenId to the tier
-                    _tokenTiers[randIndex] = tiernum;
+                if(index < 128 ) {
+                    randIndex = randIndex & 0x7F;  // Optimization: use 7 bits of entropy if we're below 128 items
+                }
+console.log("Next Rand: ",randIndex,", Index: ",index);
+                if (randIndex <= index) {
+                    // assign the tokenId rolled to the tier
+                    _tokenTiers[lottery[randIndex]] = tiernum;
+                    // remove the item from the lottery by replacing it with the item at the end of the array to avoid shifting
+                    lottery[randIndex] = lottery[index];
+console.log("Assigned tokenId to tier: ",lottery[index],tiernum);
+                    index--;
+                    targetAmount--;
                 }
             }
         }
@@ -152,6 +166,7 @@ contract TheLow is ERC721, Owned {
             }
         }
         emit BatchMetadataUpdate(1, 222);
+
     }
 
     /// numeric tier for a given tokenId
