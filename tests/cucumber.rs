@@ -28,14 +28,14 @@ abigen!(TheLow, "out/TheLow.sol/TheLow.json");
 async fn main()
 {
     // Generate bindings for the 3rd party contracts we'll need
-
+    // TODO: Add VRF here if we end up using it
 
     // Read fork endpoint from environment variable ETH_NODE_URL
     let fork_endpoint = env::var("ETH_NODE_URL").expect("Environment variable ETH_NODE_URL should be defined and be a valid API URL");
 
     let mut config: solidity_bdd::TestConfig = solidity_bdd::new();
         config.fork(fork_endpoint, FORK_CHAIN_ID)
-        //.thirdPartyContracts([])  // FIXME: Add VRF here if we end up using it
+        //.thirdPartyContracts([])  // TODO: Add VRF here if we end up using it
         ;
     solidity_bdd::run(config).await
 }
@@ -112,7 +112,7 @@ async fn verify_description(world: &mut SCWorld, description: String) {
 }
 
 async fn lookup_metadata(world: &mut SCWorld, i: i32) -> Value {
-// Look up the JSON metadata
+    // Look up the JSON metadata
     let metadata: String = world.thelow_contract.as_ref().expect("TheLow Contract should be initialized")
         .method::<_, String>("tokenURI", U256::from(i))
         .expect("Error finding tokenURI method").call().await.expect("Error sending tokenURI call");
@@ -132,7 +132,7 @@ async fn simulate_sale(world: &mut SCWorld, reserved_count: i32, sold_count: i32
     let owner: Address = world.thelow_contract.as_ref().expect("TheLow Contract should be initialized")
         .method::<_, Address>("ownerOf", U256::from(reserved_count))
         .expect("Error finding owner_of method").call().await.expect("Error sending owner_of call");
-    println!("TokenID {} is owned by {}", reserved_count, owner);
+    //println!("TokenID {} is owned by {}", reserved_count, owner);
 
     let transfer_call = world.thelow_contract.as_ref().expect("Contract must be initialized").batch_transfer(owner,new_owner, U256::from(reserved_count), U256::from(reserved_count + sold_count));
     transfer_call.send().await.expect("Failed to send transfer transaction");
@@ -181,12 +181,6 @@ async fn check_reveal(world: &mut SCWorld, step: &Step, total_count: i32) {
         .method::<_, u8>("tier", U256::from(0))
         .expect("Error finding tier method").call().await.expect("Error sending tier call");
     assert_eq!(tier, 0, "Tier should be 0 for TokenId 0");
-/*
-    let owner: Address = world.thelow_contract.as_ref().expect("TheLow Contract should be initialized")
-        .method::<_, Address>("ownerOf", U256::from(0))
-        .expect("Error finding owner_of method").call().await.expect("Error sending owner_of call");
-    assert!(owner.is_zero());
-    */
 
     // Loop through all NFTs.  Check that the metadata matches the tier number.
     // Keep a count of how many we have in each tier
@@ -198,7 +192,7 @@ async fn check_reveal(world: &mut SCWorld, step: &Step, total_count: i32) {
         let jsondata = lookup_metadata(world, i).await;
 
         let tiernum: usize = tier.into();
-        println!("TokenID {} is in tier {}", i, tiernum);
+        //println!("TokenID {} is in tier {}", i, tiernum);
         assert!(tiers.get(&tiernum).is_some());
         assert_eq!(tiers.get(&tiernum).unwrap().name,&jsondata["attributes"]["Tier Name"]);
         assert_eq!(tiers.get(&tiernum).unwrap().rarity,&jsondata["attributes"]["Tier Rarity"]);
@@ -210,6 +204,8 @@ async fn check_reveal(world: &mut SCWorld, step: &Step, total_count: i32) {
 
         token_count_by_tier[tiernum] += 1;
     }
+
+    // Verify we have the expected count in each tier
     for i in 0..6 {
         println!("Tier {}: count: {}", i, token_count_by_tier[i]);
         if i > 0 {
@@ -254,7 +250,7 @@ async fn reduce_supply(world: &mut SCWorld, supply: u8) {
 #[then(regex = r#"^the distribution should be ([\d]+) ultrarares, ([\d]+) rares, ([\d]+) uncommons, ([\d]+) commons, and ([\d]+) ultracommons$"#)]
 async fn check_distribution(world: &mut SCWorld, ultrarares: i32, rares: i32, uncommons: i32, commons: i32, ultracommons: i32) {
     let mut token_count_by_tier: [i32; 6] = [0; 6];
-    // TODO: Some duplication with check_reveal
+
     for i in 1..=222 {
         let tier: u8 = world.thelow_contract.as_ref().expect("TheLow Contract should be initialized")
             .method::<_, u8>("tier", U256::from(i))
@@ -262,7 +258,7 @@ async fn check_distribution(world: &mut SCWorld, ultrarares: i32, rares: i32, un
         let tiernum: usize = tier.into();
         token_count_by_tier[tiernum] += 1;
     }
-    //assert_eq!(token_count_by_tier[0], 0);
+
     assert_eq!(token_count_by_tier[5], ultrarares);
     assert_eq!(token_count_by_tier[4], rares);
     assert_eq!(token_count_by_tier[3], uncommons);
@@ -270,13 +266,6 @@ async fn check_distribution(world: &mut SCWorld, ultrarares: i32, rares: i32, un
     assert_eq!(token_count_by_tier[1], ultracommons);
 }
 
-
-/*
-#[then(regex = r#"the ability to update metadata should be frozen"#)]
-async fn verify_reveal_frozen(world: &mut SCWorld) {
-    // FIXME: How to verify this?  Maybe gather an array of tiers, call reveal again, and make sure it hasn't changed?
-}
-*/
 /* FIXME -- borrow checker problems with the address
 #[then(regex = r#"^royalties should be set at ([\d]+)% going to the "(.*)" address$"#)]
 async fn verify_royalty(world: &mut SCWorld, royalty_address_name: String) {
