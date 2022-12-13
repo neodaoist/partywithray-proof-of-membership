@@ -193,4 +193,25 @@ constructor(address bigNightAddr) ERC721("partywithray - The Low", "LOW") Owned(
         return uint8(((numerator * precision + denominator - 1) / denominator));
     }
 
+    /// @dev see ERC165
+    function supportsInterface(bytes4 interfaceId) public view virtual override (ERC721) returns (bool) {
+        return interfaceId == 0x2a55205a // ERC2981 -- royaltyInfo
+            || interfaceId == 0x01ffc9a7 // ERC165 -- supportsInterface
+            || interfaceId == 0x80ac58cd // ERC721 -- Non-Fungible Tokens
+            || interfaceId == 0x5b5e139f; // ERC721Metadata
+    }
+
+    /// @notice Returns royalty info for a given token and sale price
+    /// @dev Not using SafeMath here as the denominator is fixed and can never be zero,
+    /// @dev but consider doing so if changing royalty percentage to a variable
+    /// @return receiver the contract owner's address
+    /// @return royaltyAmount a fixed 10% royalty based on the sale price
+    function royaltyInfo(uint256 /* tokenId */, uint256 salePrice)
+        external
+        view
+        returns (address receiver, uint256 royaltyAmount)
+    {
+        return (owner, salePrice / 10);
+    }
+
 }

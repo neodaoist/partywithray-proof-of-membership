@@ -266,14 +266,22 @@ async fn check_distribution(world: &mut SCWorld, ultrarares: i32, rares: i32, un
     assert_eq!(token_count_by_tier[1], ultracommons);
 }
 
-/* FIXME -- borrow checker problems with the address
 #[then(regex = r#"^royalties should be set at ([\d]+)% going to the "(.*)" address$"#)]
-async fn verify_royalty(world: &mut SCWorld, royalty_address_name: String) {
+async fn verify_royalty(world: &mut SCWorld, percent: i32, royalty_address_name: String) {
 
-    // Look up the contract name
+    let mut deployer = world.deployer_address().clone();
     let royalty_info = world.thelow_contract.as_ref().expect("TheLow Contract should be initialized")
-        .method::<_, (Address, U256)>("royaltyInfo", (*world.deployer_address(), U256::from(10000_u64)))
+        .method::<_, (Address, U256)>("royaltyInfo", (U256::from(1), U256::from(10000_u64)))
         .expect("Error finding royaltyInfo method").call().await.expect("Error sending royaltyInfo call");
 
+    assert_eq!(royalty_info.0, deployer);
+    assert_eq!(royalty_info.1, U256::from(10000 * percent / 100));
 }
- */
+
+#[then(r#"the ability to mint more NFTs should be frozen"#)]
+async fn verify_cant_mint(world: &mut SCWorld) {
+    let lookup_result = world.thelow_contract.as_ref().expect("TheLow Contract should be initialized")
+        .method::<_, ()>("mint", U256::from(1));
+    assert!(lookup_result.is_err());  // We don't have a mint function!
+        //.expect("Error finding tier method").call().await.expect("Error sending tier call");
+}

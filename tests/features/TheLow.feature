@@ -16,6 +16,7 @@ Feature: Partywithray Proof of Membership
         And royalties should be set at 10% going to the "Big Night" address
         And the ability to mint more NFTs should be frozen
 
+    @Manual
     Scenario: List for sale
         When we list the Partywithray NFTs on OpenSea
         Then 211 NFTs should be listed as Buy It Now for 0.0111 ETH
@@ -33,6 +34,7 @@ Feature: Partywithray Proof of Membership
             | The Lightest Low | Ultracommon | ipfs://bafybeifwg6zzxxbit7diqfojrgskd7eb5mdryhxtenlx2lroaef2mxd5ga | ipfs://bafybeih72wvfeo6fest5ombybn3ak5ca7mqip5dzancs7mqrgafaudxx3y | afcb97e97e179a83ead16c7466725cf3d875a7c92bdb312884ad9db511e0fc52 | 111      | 1      |
         And calling reveal a second time should not change any tiers
 
+        # Discuss: the following scenario is fully covered by other scenarios in this file
     Scenario: Reveal when does not sell out
         Given 11 NFTs were held for promo and less than remaining 211 NFTs were sold
         When we decide to vault a percentage and burn a percentage of unsold NFTs

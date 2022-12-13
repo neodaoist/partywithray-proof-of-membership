@@ -174,4 +174,20 @@ contract TheLowTest is Test {
         low.divideRoundUp(100,0,1);
     }
 
+        function testRoyalty() public {
+            vm.startPrank(team);
+            low.transferFrom(team,alice,2);
+
+            (address recipient, uint256 amount) = low.royaltyInfo(1, 100_000);
+            assertEq(team, recipient);
+            assertEq(amount, 10_000); // 10%
+            (recipient, amount) = low.royaltyInfo(2, 7_777);
+            assertEq(team, recipient);
+            assertEq(amount, 777); // 10%
+            (recipient, amount) = low.royaltyInfo(3, 0);
+            assertEq(team, recipient);
+            assertEq(amount, 0); // 10%
+
+    }
 }
+
