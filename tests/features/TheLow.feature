@@ -41,6 +41,20 @@ Feature: Partywithray Proof of Membership
         And the ability to update metadata should be frozen
         And the ability to reduce supply should be frozen
 
+    Scenario Template: Reveal when does not sell out
+        When we reduce the supply to <supply>
+        And we reveal the art
+        Then the distribution should be <tier5> ultrarares, <tier4> rares, <tier3> uncommons, <tier2> commons, and <tier1> ultracommons
+        Examples:
+            | supply | tier5 | tier4 | tier3 | tier2 | tier1 |
+            |    221 |     3 |    11 |    22 |    75 |   110 |
+            |    200 |     3 |    10 |    20 |    68 |    99 |
+            |    175 |     3 |     9 |    18 |    60 |    85 |
+            |    150 |     3 |     8 |    15 |    51 |    73 |
+            |    100 |     2 |     5 |    10 |    34 |    49 |
+            |     50 |     1 |     3 |     5 |    17 |    24 |
+
+
     Scenario: Reducing Supply does not change titles
         Given an initial mint of 222
         And Bob buys tokenId 201

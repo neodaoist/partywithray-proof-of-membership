@@ -244,6 +244,33 @@ async fn no_rereveal(world: &mut SCWorld) {
     }
 }
 
+#[when(regex = r#"^we reduce the supply to ([\d]+)$"#)]
+async fn reduce_supply(world: &mut SCWorld, supply: u8) {
+    // Call reduce supply
+    let reduce_supply_call = world.thelow_contract.as_ref().expect("Contract must be initialized").update_supply(supply);
+    reduce_supply_call.send().await.expect("Reveal call failed");
+}
+
+#[then(regex = r#"^the distribution should be ([\d]+) ultrarares, ([\d]+) rares, ([\d]+) uncommons, ([\d]+) commons, and ([\d]+) ultracommons$"#)]
+async fn check_distribution(world: &mut SCWorld, ultrarares: i32, rares: i32, uncommons: i32, commons: i32, ultracommons: i32) {
+    let mut token_count_by_tier: [i32; 6] = [0; 6];
+    // TODO: Some duplication with check_reveal
+    for i in 1..=222 {
+        let tier: u8 = world.thelow_contract.as_ref().expect("TheLow Contract should be initialized")
+            .method::<_, u8>("tier", U256::from(i))
+            .expect("Error finding tier method").call().await.expect("Error sending tier call");
+        let tiernum: usize = tier.into();
+        token_count_by_tier[tiernum] += 1;
+    }
+    //assert_eq!(token_count_by_tier[0], 0);
+    assert_eq!(token_count_by_tier[5], ultrarares);
+    assert_eq!(token_count_by_tier[4], rares);
+    assert_eq!(token_count_by_tier[3], uncommons);
+    assert_eq!(token_count_by_tier[2], commons);
+    assert_eq!(token_count_by_tier[1], ultracommons);
+}
+
+
 /*
 #[then(regex = r#"the ability to update metadata should be frozen"#)]
 async fn verify_reveal_frozen(world: &mut SCWorld) {
