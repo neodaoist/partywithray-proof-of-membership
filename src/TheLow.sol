@@ -24,7 +24,7 @@ contract TheLow is ERC721, Owned {
         string image_cid;
         string animation_cid;
         string animation_hash;
-        uint16 portion;  // How many tokenIds, out of 222, of this type will be created
+        uint16 portion;  // Used to compute the portion of items that fall into this tier: (ceil(supply / portion/100))
     }
 
     struct RandBytes {
