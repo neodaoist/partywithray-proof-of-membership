@@ -31,7 +31,7 @@ Feature: Partywithray Proof of Membership
             | The Medium Low   | Uncommon    | ipfs://bafybeif3dupvjfszlc6vro3ruadocemw2r2mt44qomd2baxayb4v3glhey | ipfs://bafybeifolz3aej7yz4huykyrzegj2fejicvybyu5sgmuthudex25fylyfq | 05bbc9c8bea2dc831d2e760c37f760a65e012ea7d5aab8fb92f26ae80424aad4 | 22       | 3      |
             | The Basic Low    | Common      | ipfs://bafybeicvdszyeodww2os5z33u5rtorfqw3eae5wv5uqcx2a32ovklcpwoa | ipfs://bafybeifboxzmkmcik755qguivpbtrca33pasz3xxwjziv27zeuxuoaaet4 | af8c6f9c161ce427521dc654cf90d22b78580f2a60fb52bb553a428158a62460 | 75       | 2      |
             | The Lightest Low | Ultracommon | ipfs://bafybeifwg6zzxxbit7diqfojrgskd7eb5mdryhxtenlx2lroaef2mxd5ga | ipfs://bafybeih72wvfeo6fest5ombybn3ak5ca7mqip5dzancs7mqrgafaudxx3y | afcb97e97e179a83ead16c7466725cf3d875a7c92bdb312884ad9db511e0fc52 | 111      | 1      |
-        And the ability to update metadata should be frozen
+        And calling reveal a second time should not change any tiers
 
     Scenario: Reveal when does not sell out
         Given 11 NFTs were held for promo and less than remaining 211 NFTs were sold
@@ -41,6 +41,28 @@ Feature: Partywithray Proof of Membership
         And the ability to update metadata should be frozen
         And the ability to reduce supply should be frozen
 
+    Scenario Template: Reveal when does not sell out
+        When we reduce the supply to <supply>
+        And we reveal the art
+        Then the distribution should be <tier5> ultrarares, <tier4> rares, <tier3> uncommons, <tier2> commons, and <tier1> ultracommons
+        Examples:
+            | supply | tier5 | tier4 | tier3 | tier2 | tier1 |
+            |    221 |     3 |    11 |    22 |    75 |   110 |
+            |    200 |     3 |    10 |    20 |    68 |    99 |
+            |    175 |     3 |     9 |    18 |    60 |    85 |
+            |    150 |     3 |     8 |    15 |    51 |    73 |
+            |    100 |     2 |     5 |    10 |    34 |    49 |
+            |     50 |     1 |     3 |     5 |    17 |    24 |
+
+
+    Scenario: Reducing Supply does not change titles
+        Given an initial mint of 222
+        And Bob buys tokenId 201
+        And Alice buys tokenId 83
+        And 98 other people buy various tokenIds, for a total sale of 100 items
+        When the team reduces the supply to 100
+        Then the title of tokenId 201 should be "The Low 201/222" and its owner should be Bob
+        And the title of tokenId 83 should be "The Low 83/222" and its owner should be Alice
 
         # Reveal goals:
     # rarity IDs are not known in advance (even to the team) but provably fair
