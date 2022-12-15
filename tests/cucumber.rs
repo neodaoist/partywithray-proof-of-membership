@@ -1,20 +1,15 @@
 mod solidity_bdd;
-use std::{env, thread, time};
-use std::borrow::Borrow;
+use std::{env};
 use std::collections::HashMap;
 use std::str::FromStr;
 use async_std::task;
 use crate::solidity_bdd::{SCWorld, TestConfig};
-use cucumber::{gherkin::Step, given, when, then, World};
+use cucumber::{gherkin::Step, given, when, then};
 use ethers::prelude::*; // {k256, U256};
-use ethers_contract::{abigen, Contract};
-use ethers_middleware::SignerMiddleware;
-use ethers_providers::{Http, Provider};
-use ethers_signers::Wallet;
+use ethers_contract::{abigen};
 use serde_json;
 use base64;
-use ethers::prelude::k256::elliptic_curve::consts::U8;
-use serde_json::{json, Value};
+use serde_json::{Value};
 
 const FORK_CHAIN_ID: u64 = 31337_u64;
 
@@ -43,7 +38,7 @@ async fn main()
 // Stepdefs
 #[given(r#"the Partywithray Proof of Membership NFT contract is deployed"#)]
 fn deploy_party_with_ray(world: &mut SCWorld) {
-    let thelow_contract = task::block_on(solidity_bdd::the_low::TheLow::deploy(world.client(), (world.deployer_address().clone())).expect("Failed to deploy").send()).expect("Failed to send");
+    let thelow_contract = task::block_on(solidity_bdd::the_low::TheLow::deploy(world.client(), world.deployer_address().clone()).expect("Failed to deploy").send()).expect("Failed to send");
     world.thelow_contract = Some(thelow_contract);
 }
 
@@ -69,7 +64,7 @@ async fn verify_name_and_symbol(world: &mut SCWorld, expected_name: String, expe
 
 #[then(regex = r#"^the supply should be ([\d]+)$"#)]
 async fn verify_supply(world: &mut SCWorld, expected_supply_str: String) {
-    let expected_supply = ethers::types::U256::from_dec_str(expected_supply_str.as_str()).expect("Expected supply value should be a number");
+    let expected_supply = U256::from_dec_str(expected_supply_str.as_str()).expect("Expected supply value should be a number");
 
     let actual_supply = world.thelow_contract.as_ref().expect("TheLow Contract should be initialized")
         .method::<_, U256>("totalSupply", ())
@@ -119,11 +114,11 @@ async fn lookup_metadata(world: &mut SCWorld, i: i32) -> Value {
 
     // Decode base64
     let b64string: String = metadata.strip_prefix("data:application/json;base64,").expect("String should have base64 prefix").to_string();
-    let jsonbytes = base64::decode(b64string).expect("Base64 string should be valid");
+    let json_bytes = base64::decode(b64string).expect("Base64 string should be valid");
     //println!("Got JSON: {}", String::from_utf8(jsonbytes).expect("String should be UTF-8"));
     // Parse JSON and inspect
-    let jsondata: serde_json::Value = serde_json::from_slice(&*jsonbytes).expect("JSON should be valid");
-    jsondata
+    let json_data: Value = serde_json::from_slice(&*json_bytes).expect("JSON should be valid");
+    json_data
 }
 
 #[given(regex = r#"([\d]+) NFTs were held for promo and all remaining ([\d]+) NFTs were sold"#)]
@@ -145,7 +140,7 @@ async fn reveal_art(world: &mut SCWorld) {
 }
 
 #[then(regex = r#"^there should be ([\d]+) tokens with the following metadata and quantities:$"#)]
-async fn check_reveal(world: &mut SCWorld, step: &Step, total_count: i32) {
+async fn check_reveal(world: &mut SCWorld, step: &Step, expected_total: i32) {
 
     // Parse data table into tier info structure
     struct TierInfo<'a> {
@@ -185,6 +180,7 @@ async fn check_reveal(world: &mut SCWorld, step: &Step, total_count: i32) {
     // Loop through all NFTs.  Check that the metadata matches the tier number.
     // Keep a count of how many we have in each tier
     let mut token_count_by_tier: [i32; 6] = [0; 6];
+    let mut total_count: i32 = 0;
     for i in 1..=222 {
         let tier: u8 = world.thelow_contract.as_ref().expect("TheLow Contract should be initialized")
             .method::<_, u8>("tier", U256::from(i))
@@ -203,6 +199,7 @@ async fn check_reveal(world: &mut SCWorld, step: &Step, total_count: i32) {
         assert_eq!(tiers.get(&tiernum).unwrap().animation_uri,&jsondata["content"]["uri"]);
 
         token_count_by_tier[tiernum] += 1;
+        total_count += 1;
     }
 
     // Verify we have the expected count in each tier
@@ -212,8 +209,7 @@ async fn check_reveal(world: &mut SCWorld, step: &Step, total_count: i32) {
             assert_eq!(token_count_by_tier[i], tiers.get(&i).expect("Tier data not found").expected_quantity);
         }
     }
-
-
+    assert_eq!(total_count, expected_total);
 }
 
 #[then(r#"calling reveal a second time should not change any tiers"#)]
@@ -267,9 +263,9 @@ async fn check_distribution(world: &mut SCWorld, ultrarares: i32, rares: i32, un
 }
 
 #[then(regex = r#"^royalties should be set at ([\d]+)% going to the "(.*)" address$"#)]
-async fn verify_royalty(world: &mut SCWorld, percent: i32, royalty_address_name: String) {
+async fn verify_royalty(world: &mut SCWorld, percent: i32, _royalty_address_name: String) {
 
-    let mut deployer = world.deployer_address().clone();
+    let deployer = world.deployer_address().clone();
     let royalty_info = world.thelow_contract.as_ref().expect("TheLow Contract should be initialized")
         .method::<_, (Address, U256)>("royaltyInfo", (U256::from(1), U256::from(10000_u64)))
         .expect("Error finding royaltyInfo method").call().await.expect("Error sending royaltyInfo call");
@@ -283,5 +279,4 @@ async fn verify_cant_mint(world: &mut SCWorld) {
     let lookup_result = world.thelow_contract.as_ref().expect("TheLow Contract should be initialized")
         .method::<_, ()>("mint", U256::from(1));
     assert!(lookup_result.is_err());  // We don't have a mint function!
-        //.expect("Error finding tier method").call().await.expect("Error sending tier call");
 }

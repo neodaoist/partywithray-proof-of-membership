@@ -12,7 +12,7 @@ Feature: Partywithray Proof of Membership
         And the supply should be 222
         And all 222 NFTs should have the pre-reveal art
         And each NFT title should be "The Low {id}/222"
-        And each NFT description should be "partywithray Proof of Membership"
+        And each NFT description should be "A Proof of Membership NFT for partywithray fans, granting future access to shows, new music, and merch. ᾪ9 ⚡ In Collaboration with Kairos Music, a music NFT information platform that seeks to make a living salary for artists in the music industry achievable."
         And royalties should be set at 10% going to the "Big Night" address
         And the ability to mint more NFTs should be frozen
 
