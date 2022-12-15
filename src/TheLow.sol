@@ -10,7 +10,6 @@ import "./utils.sol";
 /// @author neodaoist
 /// @notice The full supply of this contract (222 items) is minted in this constructor
 contract TheLow is ERC721, Owned {
-
     event SupplyUpdated(uint8 indexed newSupply);
     event BatchMetadataUpdate(uint256 _fromTokenId, uint256 _toTokenId);
     event UpdateMetadata(uint256 tokenId);
@@ -24,19 +23,19 @@ contract TheLow is ERC721, Owned {
         string image_cid;
         string animation_cid;
         string animation_hash;
-        uint16 portion;  // Used to compute the portion of items that fall into this tier: (ceil(supply / portion/100))
+        uint16 portion; // Used to compute the portion of items that fall into this tier: (ceil(supply / portion/100))
     }
 
     struct RandBytes {
         bytes32 data;
         uint8 index;
     }
-    Tier[6] internal _tierInfo;
-    uint8[MAX_SUPPLY+1] internal _tokenTiers;  // TokenIds are 1-indexed
 
-/*
-CONSTRUCTOR
-*/
+    Tier[6] internal _tierInfo;
+    uint8[MAX_SUPPLY + 1] internal _tokenTiers; // TokenIds are 1-indexed
+
+    /*
+    CONSTRUCTOR*/
 
     constructor(address bigNightAddr) ERC721("partywithray - The Low", "LOW") Owned(bigNightAddr) {
         // Create the tier info table
@@ -54,7 +53,8 @@ CONSTRUCTOR
 
     /// @notice Get the dynamic metadata.  This will change one time, when reveal is called, following the initial sale
     function tokenURI(uint256 tokenId) public view override returns (string memory) {
-        string memory description = "A Proof of Membership NFT for partywithray fans, granting future access to shows, new music, and merch. \u1FAA9 \u26A1 In Collaboration with Kairos Music, a music NFT information platform that seeks to make a living salary for artists in the music industry achievable.";
+        string memory description =
+            "A Proof of Membership NFT for partywithray fans, granting future access to shows, new music, and merch. \u1FAA9 \u26A1 In Collaboration with Kairos Music, a music NFT information platform that seeks to make a living salary for artists in the music industry achievable.";
         return string(
             abi.encodePacked(
                 "data:application/json;base64,",
@@ -62,17 +62,24 @@ CONSTRUCTOR
                     bytes(
                         string(
                             abi.encodePacked(
-                                '{"name": "The Low ', utils.uint256ToString(tokenId), '/222',
-                                '", "description": "', description, '", "image": "ipfs://',
+                                '{"name": "The Low ',
+                                utils.uint256ToString(tokenId),
+                                "/222",
+                                '", "description": "',
+                                description,
+                                '", "image": "ipfs://',
                                 _tierInfo[_tokenTiers[tokenId]].image_cid,
-                                '", "animation_url": "ipfs://', _tierInfo[_tokenTiers[tokenId]].animation_cid,
+                                '", "animation_url": "ipfs://',
+                                _tierInfo[_tokenTiers[tokenId]].animation_cid,
                                 '", "attributes": { "Tier Name": "',
                                 _tierInfo[_tokenTiers[tokenId]].name,
-                                 '", "Tier Rarity" : "',
+                                '", "Tier Rarity" : "',
                                 _tierInfo[_tokenTiers[tokenId]].rarity,
                                 '"}, "content": {"mimeType": "video/mp4", "hash": "',
-                                 _tierInfo[_tokenTiers[tokenId]].animation_hash, '", "uri": "ipfs://',
-                                 _tierInfo[_tokenTiers[tokenId]].animation_cid, '"}}'
+                                _tierInfo[_tokenTiers[tokenId]].animation_hash,
+                                '", "uri": "ipfs://',
+                                _tierInfo[_tokenTiers[tokenId]].animation_cid,
+                                '"}}'
                             )
                         )
                     )
@@ -86,7 +93,7 @@ CONSTRUCTOR
     ----------------------------------------------------------- */
     /// @notice Mints a batch of tokens, with contiguous tokenIds
     function mintBatch(address to, uint256 start, uint256 end, uint8 tierIndex) private {
-        for(uint i = start; i <= end; i++) {
+        for (uint256 i = start; i <= end; i++) {
             _mint(to, i);
             _tokenTiers[i] = tierIndex;
         }
@@ -101,8 +108,9 @@ CONSTRUCTOR
         require(_tokenTiers[1] == 0, "ALREADY_REVEALED");
         uint256 currentSupply = totalSupply;
         // Burn the highest tokenIds first for aesthetics
-        for(uint8 index = MAX_SUPPLY; index > 0 && currentSupply > _newSupply; index--) {
-            if(_ownerOf[index] == msg.sender) {  // Only burn the tokens we own
+        for (uint8 index = MAX_SUPPLY; index > 0 && currentSupply > _newSupply; index--) {
+            if (_ownerOf[index] == msg.sender) {
+                // Only burn the tokens we own
                 //FIXME console.log("Burning: ", index, ", Owned by: ", _ownerOf[index]);
                 _burn(index);
                 currentSupply--;
@@ -119,7 +127,7 @@ CONSTRUCTOR
     /// @dev Returns one byte of pseudorandom data from a pre-seeded structure.  Re-hashes to get more randomness from the same seend as needed
     /// @param randdata pre-seeded pseudorandom data struct
     function getRandByte(RandBytes memory randdata) private pure returns (uint8) {
-        if(randdata.index >= 8) {
+        if (randdata.index >= 8) {
             randdata.data = keccak256(abi.encodePacked(randdata.data));
             randdata.index = 0;
         }
@@ -130,7 +138,7 @@ CONSTRUCTOR
 
     /// @notice Randomly reveals the tiers for each unburned, unrevealed tokenId in this contract.  Will not change the tier of any tokenId that's previously been revealed
     /// @dev Uses blocks.prevrandao as random source.  Small MEV risk but simple.  Could use Chainlink VRF here too.
-    function reveal() onlyOwner public {
+    function reveal() public onlyOwner {
         // Initialize PRNG -- using blocks.
         RandBytes memory randdata = RandBytes(keccak256(abi.encodePacked(block.difficulty)), 0);
 
@@ -138,21 +146,21 @@ CONSTRUCTOR
         uint8[] memory lottery = new uint8[](totalSupply);
         uint8 index = 0;
         for (uint8 tokenId = 1; tokenId <= MAX_SUPPLY; tokenId++) {
-            if ( _ownerOf[tokenId] != address(0) ) {
-                lottery[index] = tokenId;  // Can't use .push on memory arrays so we maintain our own index
+            if (_ownerOf[tokenId] != address(0)) {
+                lottery[index] = tokenId; // Can't use .push on memory arrays so we maintain our own index
                 index++;
             }
         }
-        assert(index == totalSupply);  // FIXME: Remove before mainnet deploy
-        index--;  // index will be totalSupply, or one past the end of lottery's used range
+        assert(index == totalSupply); // FIXME: Remove before mainnet deploy
+        index--; // index will be totalSupply, or one past the end of lottery's used range
 
         // Roll random dice for tiers 5 through 2
-        for (uint8 tiernum = 5; tiernum > 1; tiernum-- ) {
-            uint targetAmount = divideRoundUp(totalSupply,_tierInfo[tiernum].portion,100);   // FIXME: Proportional amounts if we don't sell out
-            while(targetAmount > 0) {
+        for (uint8 tiernum = 5; tiernum > 1; tiernum--) {
+            uint256 targetAmount = divideRoundUp(totalSupply, _tierInfo[tiernum].portion, 100); // FIXME: Proportional amounts if we don't sell out
+            while (targetAmount > 0) {
                 uint8 randIndex = getRandByte(randdata);
-                if(index < 128 ) {
-                    randIndex = randIndex & 0x7F;  // Optimization: use 7 bits of entropy if we're below 128 items to reduce re-rolls
+                if (index < 128) {
+                    randIndex = randIndex & 0x7F; // Optimization: use 7 bits of entropy if we're below 128 items to reduce re-rolls
                 }
 
                 if (randIndex <= index) {
@@ -168,12 +176,11 @@ CONSTRUCTOR
         }
         // Assign any remaining tokenIds to tier 1, unless burned
         for (uint8 tokenId = 1; tokenId <= MAX_SUPPLY; tokenId++) {
-            if (_tokenTiers[tokenId] == 0 && _ownerOf[tokenId] != address(0) ) {
+            if (_tokenTiers[tokenId] == 0 && _ownerOf[tokenId] != address(0)) {
                 _tokenTiers[tokenId] = 1;
             }
         }
         emit BatchMetadataUpdate(1, 222);
-
     }
 
     /// @notice Returns the numeric tier for a given tokenId
@@ -183,14 +190,18 @@ CONSTRUCTOR
 
     /// @notice Transfers a contiguous range of tokenIds to a given address -- useful for efficiently transferring a block to a vault
     function batchTransfer(address from, address to, uint256 startTokenId, uint256 endTokenId) public {
-        for(uint256 i = startTokenId; i < endTokenId; i++) {
+        for (uint256 i = startTokenId; i < endTokenId; i++) {
             transferFrom(from, to, i);
         }
     }
 
     /// Divide and round UP
     /// @dev does not check for division by zero.  Precision specifies the number of "decimal points" in the denominator (57, 1234, 100 would be 57/12.34=5)
-    function divideRoundUp(uint numerator, uint denominator, uint precision) public pure returns(uint8 quotient) {
+    function divideRoundUp(uint256 numerator, uint256 denominator, uint256 precision)
+        public
+        pure
+        returns (uint8 quotient)
+    {
         // Add precision
         return uint8(((numerator * precision + denominator - 1) / denominator));
     }
@@ -198,9 +209,9 @@ CONSTRUCTOR
     /// @dev see ERC165
     function supportsInterface(bytes4 interfaceId) public view virtual override (ERC721) returns (bool) {
         return interfaceId == 0x01ffc9a7 // ERC165 -- supportsInterface
-        || interfaceId == 0x80ac58cd // ERC721 -- Non-Fungible Tokens
-        || interfaceId == 0x5b5e139f // ERC721Metadata
-        || interfaceId == 0x2a55205a; // ERC2981 -- royaltyInfo
+            || interfaceId == 0x80ac58cd // ERC721 -- Non-Fungible Tokens
+            || interfaceId == 0x5b5e139f // ERC721Metadata
+            || interfaceId == 0x2a55205a; // ERC2981 -- royaltyInfo
     }
 
     /// @notice Returns royalty info for a given token and sale price
@@ -208,12 +219,11 @@ CONSTRUCTOR
     /// @dev but consider doing so if changing royalty percentage to a variable
     /// @return receiver is always the contract owner's address
     /// @return royaltyAmount a fixed 10% royalty based on the sale price
-    function royaltyInfo(uint256 /* tokenId */, uint256 salePrice)
+    function royaltyInfo(uint256, /* tokenId */ uint256 salePrice)
         external
         view
         returns (address receiver, uint256 royaltyAmount)
     {
         return (owner, salePrice / 10);
     }
-
 }

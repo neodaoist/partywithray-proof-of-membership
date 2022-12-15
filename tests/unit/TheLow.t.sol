@@ -6,7 +6,6 @@ import "../../src/TheLow.sol";
 
 contract TheLowTest is Test {
     //
-    
     TheLow internal low;
 
     address internal constant alice = address(0xAAAA);
@@ -23,14 +22,7 @@ contract TheLowTest is Test {
 
     function setUp() public {
         low = new TheLow(team);
-        tierURIs = [
-            prereveal,
-            tier1,
-            tier2,
-            tier3,
-            tier4,
-            tier5
-        ];
+        tierURIs = [prereveal, tier1, tier2, tier3, tier4, tier5];
     }
 
     function test_Initial() public {
@@ -46,8 +38,6 @@ contract TheLowTest is Test {
         //}
     }
 
-
-
     /* ------------------------------------------------------------
                         UPDATE SUPPLY
     ------------------------------------------------------------ */
@@ -58,7 +48,7 @@ contract TheLowTest is Test {
 
         assertEq(low.totalSupply(), 137);
 
-        uint i;
+        uint256 i;
         for (i = 1; i <= 137; i++) {
             assertEq(low.ownerOf(i), team);
         }
@@ -71,7 +61,7 @@ contract TheLowTest is Test {
     function testEvent_UpdateSupply() public {
         vm.expectEmit(true, true, true, true);
         emit SupplyUpdated(137);
-        
+
         vm.prank(team);
         low.updateSupply(137);
     }
@@ -79,12 +69,12 @@ contract TheLowTest is Test {
     function test_UpdateSupplyDoesntBurnSold() public {
         console.log("Transferring");
         vm.prank(team);
-        low.transferFrom(team,alice,201);
+        low.transferFrom(team, alice, 201);
         console.log("Burning");
         vm.prank(team);
         low.updateSupply(100);
         assertEq(low.totalSupply(), 100);
-        assertEq(low.ownerOf(201),alice);
+        assertEq(low.ownerOf(201), alice);
         console.log("Checking");
         vm.expectRevert("NOT_MINTED");
         low.ownerOf(100);
@@ -108,7 +98,6 @@ contract TheLowTest is Test {
 
         low.updateSupply(223);
     }
-
 
     function testMintBatch() public {
         // Minting happens in the constructor
@@ -142,52 +131,48 @@ contract TheLowTest is Test {
     function testReveal() public {
         vm.prank(team);
         low.reveal();
-        for(uint256 i = 1; i <= 222; i++) {
+        for (uint256 i = 1; i <= 222; i++) {
             assert(low.tier(i) != 0);
         }
     }
 
     function testRevealIsOnlyOwner() public {
-         vm.prank(bob);
-         vm.expectRevert("UNAUTHORIZED");
-         low.reveal();
+        vm.prank(bob);
+        vm.expectRevert("UNAUTHORIZED");
+        low.reveal();
     }
 
-    function testRevealSkipsBurned() public {
-
-    }
+    function testRevealSkipsBurned() public {}
 
     function testDivideRoundUp() public {
-        assertEq(10,low.divideRoundUp(99,10,1));
-        assertEq(10,low.divideRoundUp(100,10,1));
-        assertEq(11,low.divideRoundUp(101,10,1));
-        assertEq(0,low.divideRoundUp(0,20,1));
-        assertEq(26,low.divideRoundUp(251,10,1));
+        assertEq(10, low.divideRoundUp(99, 10, 1));
+        assertEq(10, low.divideRoundUp(100, 10, 1));
+        assertEq(11, low.divideRoundUp(101, 10, 1));
+        assertEq(0, low.divideRoundUp(0, 20, 1));
+        assertEq(26, low.divideRoundUp(251, 10, 1));
 
-        assertEq(3,low.divideRoundUp(222,7400,100));
-        assertEq(11,low.divideRoundUp(222,2019,100));   // 222/20.19 = 11
-        assertEq(22,low.divideRoundUp(222,1010,100));     // 222/10.1 = 22
-        assertEq(75,low.divideRoundUp(222,296,100));    // 222/2.96 = 75
-        assertEq(111,low.divideRoundUp(222,200,100));
+        assertEq(3, low.divideRoundUp(222, 7400, 100));
+        assertEq(11, low.divideRoundUp(222, 2019, 100)); // 222/20.19 = 11
+        assertEq(22, low.divideRoundUp(222, 1010, 100)); // 222/10.1 = 22
+        assertEq(75, low.divideRoundUp(222, 296, 100)); // 222/2.96 = 75
+        assertEq(111, low.divideRoundUp(222, 200, 100));
 
         vm.expectRevert();
-        low.divideRoundUp(100,0,1);
+        low.divideRoundUp(100, 0, 1);
     }
 
-        function testRoyalty() public {
-            vm.startPrank(team);
-            low.transferFrom(team,alice,2);
+    function testRoyalty() public {
+        vm.startPrank(team);
+        low.transferFrom(team, alice, 2);
 
-            (address recipient, uint256 amount) = low.royaltyInfo(1, 100_000);
-            assertEq(team, recipient);
-            assertEq(amount, 10_000); // 10%
-            (recipient, amount) = low.royaltyInfo(2, 7_777);
-            assertEq(team, recipient);
-            assertEq(amount, 777); // 10%
-            (recipient, amount) = low.royaltyInfo(3, 0);
-            assertEq(team, recipient);
-            assertEq(amount, 0); // 10%
-
+        (address recipient, uint256 amount) = low.royaltyInfo(1, 100_000);
+        assertEq(team, recipient);
+        assertEq(amount, 10_000); // 10%
+        (recipient, amount) = low.royaltyInfo(2, 7_777);
+        assertEq(team, recipient);
+        assertEq(amount, 777); // 10%
+        (recipient, amount) = low.royaltyInfo(3, 0);
+        assertEq(team, recipient);
+        assertEq(amount, 0); // 10%
     }
 }
-
