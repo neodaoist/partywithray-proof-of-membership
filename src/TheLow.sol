@@ -1,22 +1,33 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.13;
+pragma solidity 0.8.16;
 
 import {ERC721} from "solmate/tokens/ERC721.sol";
 import {Owned} from "solmate/auth/Owned.sol";
+
 import "./utils.sol";
 
 /// @title partywithray - The Low NFT Collection
 /// @author plaird523
 /// @author neodaoist
-/// @notice The full supply of this contract (222 items) is minted in this constructor
+/// @dev The full supply of this contract (222 items) is minted in the constructor.
 contract TheLow is ERC721, Owned {
-    event SupplyUpdated(uint8 indexed newSupply);
+    //
+
+    /* -----------------------------------------------------------
+                        EVENTS
+    ----------------------------------------------------------- */
+
+    /// @notice Emitted when supply is updated
+    event SupplyUpdate(uint8 indexed newSupply);
+
+    /// @notice Emitted when metadata is updated
     event BatchMetadataUpdate(uint256 _fromTokenId, uint256 _toTokenId);
-    event UpdateMetadata(uint256 tokenId);
 
-    uint8 public constant MAX_SUPPLY = 222;
-    uint8 public totalSupply = 222;
+    /* -----------------------------------------------------------
+                        DATA STRUCTURES
+    ----------------------------------------------------------- */
 
+    /// @notice Represents a rarity/artwork tier
     struct Tier {
         string name;
         string rarity;
@@ -26,16 +37,39 @@ contract TheLow is ERC721, Owned {
         uint16 portion; // Used to compute the portion of items that fall into this tier: (ceil(supply / portion/100))
     }
 
+    /// @notice Data structure for pseudorandom rarity/artwork reveal
     struct RandBytes {
         bytes32 data;
         uint8 index;
     }
 
-    Tier[6] internal _tierInfo;
-    uint8[MAX_SUPPLY + 1] internal _tokenTiers; // TokenIds are 1-indexed
+    /* -----------------------------------------------------------
+                        CONSTANT VARIABLES - PUBLIC
+    ----------------------------------------------------------- */
+    
+    /// @notice Maximum possible supply
+    uint8 public constant MAX_SUPPLY = 222;
 
-    /*
-    CONSTRUCTOR*/
+    /* -----------------------------------------------------------
+                        STATE VARIABLES - PUBLIC
+    ----------------------------------------------------------- */
+    
+    /// @notice Actual supply
+    uint8 public totalSupply = 222;
+
+    /* -----------------------------------------------------------
+                        STATE VARIABLES - INTERNAL
+    ----------------------------------------------------------- */
+
+    /// @notice All 6 rarity/artwork tiers
+    Tier[6] internal _tierInfo;
+
+    /// @notice Rarity/artwork tier for each token ID (tokenIds are 1-indexed)
+    uint8[MAX_SUPPLY + 1] internal _tokenTiers;
+
+    /* -----------------------------------------------------------
+                        CONSTRUCTOR
+    ----------------------------------------------------------- */
 
     constructor(address bigNightAddr) ERC721("partywithray - The Low", "LOW") Owned(bigNightAddr) {
         // Create the tier info table
@@ -51,10 +85,15 @@ contract TheLow is ERC721, Owned {
         mintBatch(bigNightAddr, 1, MAX_SUPPLY, 0);
     }
 
-    /// @notice Get the dynamic metadata.  This will change one time, when reveal is called, following the initial sale
+    /* -----------------------------------------------------------
+                        TOKEN INFO
+    ----------------------------------------------------------- */
+
+    /// @notice Get the dynamic metadata. This will change one time, when reveal is called, following the initial sale.
     function tokenURI(uint256 tokenId) public view override returns (string memory) {
         string memory description =
-            "A Proof of Membership NFT for partywithray fans, granting future access to shows, new music, and merch. \u1FAA9 \u26A1 In Collaboration with Kairos Music, a music NFT information platform that seeks to make a living salary for artists in the music industry achievable.";
+            "A Proof of Membership NFT for partywithray fans, granting future access to shows, new music, and merch. \u1FAA9 \u26A1 In Collaboration with Hyperforge, a smart contract development and security research firm, and Kairos Music, a music NFT information platform that seeks to make a living salary for artists in the music industry achievable.";
+
         return string(
             abi.encodePacked(
                 "data:application/json;base64,",
@@ -63,7 +102,7 @@ contract TheLow is ERC721, Owned {
                         string(
                             abi.encodePacked(
                                 '{"name": "The Low ',
-                                utils.uint256ToString(tokenId),
+                                utils.toString(tokenId),
                                 "/222",
                                 '", "description": "',
                                 description,
@@ -88,10 +127,22 @@ contract TheLow is ERC721, Owned {
         );
     }
 
+    /// @notice Returns the numeric tier for a given tokenId
+    /// @param tokenId The tokenId to check
+    /// @return The tier of a given tokenId
+    function tier(uint256 tokenId) external view returns (uint8) {
+        return _tokenTiers[uint8(tokenId)];
+    }
+
     /* -----------------------------------------------------------
                         BATCH MINT
     ----------------------------------------------------------- */
+
     /// @notice Mints a batch of tokens, with contiguous tokenIds
+    /// @param to The address to mint to
+    /// @param start The starting tokenId
+    /// @param end The ending tokenId
+    /// @param tierIndex The initial Pre-reveal tier for each minted token
     function mintBatch(address to, uint256 start, uint256 end, uint8 tierIndex) private {
         for (uint256 i = start; i <= end; i++) {
             _mint(to, i);
@@ -102,11 +153,15 @@ contract TheLow is ERC721, Owned {
     /* -----------------------------------------------------------
                         UPDATE SUPPLY
     ----------------------------------------------------------- */
+
     /// @notice Reduces the supply of this token by burning unsold tokenIds (those not owned by the contract owner)
+    /// @param _newSupply The new supply amount
     function updateSupply(uint8 _newSupply) public onlyOwner {
         require(_newSupply < totalSupply, "INVALID_SUPPLY");
         require(_tokenTiers[1] == 0, "ALREADY_REVEALED");
+
         uint256 currentSupply = totalSupply;
+
         // Burn the highest tokenIds first for aesthetics
         for (uint8 index = MAX_SUPPLY; index > 0 && currentSupply > _newSupply; index--) {
             if (_ownerOf[index] == msg.sender) {
@@ -118,28 +173,18 @@ contract TheLow is ERC721, Owned {
         }
         totalSupply = _newSupply;
 
-        emit SupplyUpdated(_newSupply);
+        emit SupplyUpdate(_newSupply);
     }
 
     /* --------------------------------------------------------------
                         RANDOM REVEAL
     -------------------------------------------------------------- */
-    /// @dev Returns one byte of pseudorandom data from a pre-seeded structure.  Re-hashes to get more randomness from the same seend as needed
-    /// @param randdata pre-seeded pseudorandom data struct
-    function getRandByte(RandBytes memory randdata) private pure returns (uint8) {
-        if (randdata.index >= 8) {
-            randdata.data = keccak256(abi.encodePacked(randdata.data));
-            randdata.index = 0;
-        }
-        bytes1 value = randdata.data[randdata.index];
-        randdata.index++;
-        return uint8(value);
-    }
 
-    /// @notice Randomly reveals the tiers for each unburned, unrevealed tokenId in this contract.  Will not change the tier of any tokenId that's previously been revealed
-    /// @dev Uses blocks.prevrandao as random source.  Small MEV risk but simple.  Could use Chainlink VRF here too.
+    /// @notice Randomly reveals the tiers for each unburned, unrevealed tokenId in this 
+    /// contract. Will not change the tier of any tokenId that's previously been revealed.
+    /// @dev Uses blocks.prevrandao as random source. Small MEV risk but simple. Could use Chainlink VRF here too.
     function reveal() public onlyOwner {
-        // Initialize PRNG -- using blocks.
+        // Initialize PRNG -- using blocks
         RandBytes memory randdata = RandBytes(keccak256(abi.encodePacked(block.difficulty)), 0);
 
         // Build an array of all the un-burned tokenIds
@@ -152,11 +197,11 @@ contract TheLow is ERC721, Owned {
             }
         }
         assert(index == totalSupply); // FIXME: Remove before mainnet deploy
-        index--; // index will be totalSupply, or one past the end of lottery's used range
+        index--; // Index will be totalSupply, or one past the end of lottery's used range
 
         // Roll random dice for tiers 5 through 2
         for (uint8 tiernum = 5; tiernum > 1; tiernum--) {
-            uint256 targetAmount = divideRoundUp(totalSupply, _tierInfo[tiernum].portion, 100); // FIXME: Proportional amounts if we don't sell out
+            uint256 targetAmount = utils.divideRoundUp(totalSupply, _tierInfo[tiernum].portion, 100); // FIXME: Proportional amounts if we don't sell out
             while (targetAmount > 0) {
                 uint8 randIndex = getRandByte(randdata);
                 if (index < 128) {
@@ -164,61 +209,79 @@ contract TheLow is ERC721, Owned {
                 }
 
                 if (randIndex <= index) {
-                    // assign the tokenId rolled to the tier
+                    // Assign the tokenId rolled to the tier
                     _tokenTiers[lottery[randIndex]] = tiernum;
-                    // remove the item from the lottery by replacing it with the item at the end of the array to avoid shifting
+                    // Remove the item from the lottery by replacing it with the item at the end of the array to avoid shifting
                     lottery[randIndex] = lottery[index];
-                    // update the loop counters
+                    // Update the loop counters
                     index--;
                     targetAmount--;
                 }
             }
         }
+
         // Assign any remaining tokenIds to tier 1, unless burned
         for (uint8 tokenId = 1; tokenId <= MAX_SUPPLY; tokenId++) {
             if (_tokenTiers[tokenId] == 0 && _ownerOf[tokenId] != address(0)) {
                 _tokenTiers[tokenId] = 1;
             }
         }
+        
         emit BatchMetadataUpdate(1, 222);
     }
 
-    /// @notice Returns the numeric tier for a given tokenId
-    function tier(uint256 tokenId) public view returns (uint8) {
-        return _tokenTiers[uint8(tokenId)];
+    /// @notice Returns one byte of pseudorandom data from a pre-seeded structure
+    /// @dev Re-hashes to get more randomness from the same seed as needed
+    /// @param randdata pre-seeded pseudorandom data struct
+    /// @return One byte of pseudorandom data
+    function getRandByte(RandBytes memory randdata) private pure returns (uint8) {
+        if (randdata.index >= 8) {
+            randdata.data = keccak256(abi.encodePacked(randdata.data));
+            randdata.index = 0;
+        }
+        bytes1 value = randdata.data[randdata.index];
+        randdata.index++;
+
+        return uint8(value);
     }
 
-    /// @notice Transfers a contiguous range of tokenIds to a given address -- useful for efficiently transferring a block to a vault
-    function batchTransfer(address from, address to, uint256 startTokenId, uint256 endTokenId) public {
+    /* -----------------------------------------------------------
+                        BATCH TRANSFER
+    ----------------------------------------------------------- */
+
+    /// @notice Transfers a contiguous range of tokenIds to a given address -- useful
+    /// @notice for efficiently transferring a block to a vault
+    /// @param from pre-seeded pseudorandom data struct
+    /// @param to pre-seeded pseudorandom data struct
+    /// @param startTokenId pre-seeded pseudorandom data struct
+    /// @param endTokenId pre-seeded pseudorandom data struct
+    function batchTransfer(address from, address to, uint256 startTokenId, uint256 endTokenId) external {
         for (uint256 i = startTokenId; i < endTokenId; i++) {
             transferFrom(from, to, i);
         }
     }
 
-    /// Divide and round UP
-    /// @dev does not check for division by zero.  Precision specifies the number of "decimal points" in the denominator (57, 1234, 100 would be 57/12.34=5)
-    function divideRoundUp(uint256 numerator, uint256 denominator, uint256 precision)
-        public
-        pure
-        returns (uint8 quotient)
-    {
-        // Add precision
-        return uint8(((numerator * precision + denominator - 1) / denominator));
-    }
+    /* -----------------------------------------------------------
+                        EIP-165
+    ----------------------------------------------------------- */
 
-    /// @dev see ERC165
-    function supportsInterface(bytes4 interfaceId) public view virtual override (ERC721) returns (bool) {
+    /// @dev See ERC165
+    function supportsInterface(bytes4 interfaceId) public pure override (ERC721) returns (bool) {
         return interfaceId == 0x01ffc9a7 // ERC165 -- supportsInterface
             || interfaceId == 0x80ac58cd // ERC721 -- Non-Fungible Tokens
             || interfaceId == 0x5b5e139f // ERC721Metadata
             || interfaceId == 0x2a55205a; // ERC2981 -- royaltyInfo
     }
 
+    /* -----------------------------------------------------------
+                        EIP-2981
+    ----------------------------------------------------------- */
+
     /// @notice Returns royalty info for a given token and sale price
     /// @dev Not using SafeMath here as the denominator is fixed and can never be zero,
-    /// @dev but consider doing so if changing royalty percentage to a variable
-    /// @return receiver is always the contract owner's address
-    /// @return royaltyAmount a fixed 10% royalty based on the sale price
+    /// @dev but consider doing so if changing royalty percentage to a variable.
+    /// @return receiver Receiver is always the contract owner's address
+    /// @return royaltyAmount Royalty amount is a fixed 10% royalty based on the sale price
     function royaltyInfo(uint256, /* tokenId */ uint256 salePrice)
         external
         view

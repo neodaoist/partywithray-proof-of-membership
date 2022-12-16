@@ -1,8 +1,10 @@
 // SPDX-License-Identifier: MIIT
-pragma solidity 0.8.13;
+pragma solidity 0.8.16;
 
 import "forge-std/Test.sol";
-import "../../src/TheLow.sol";
+import {utils} from "../../src/utils.sol";
+
+import {TheLow} from "../../src/TheLow.sol";
 
 contract TheLowTest is Test {
     //
@@ -31,18 +33,13 @@ contract TheLowTest is Test {
 
         assertEq(low.owner(), team);
         assertEq(low.totalSupply(), 222);
-
-        // Moved to Cucumber
-        //for (uint8 i = 1; i <= low.MAX_SUPPLY(); i++) {
-        //    assertEq(low.tokenURI(i), prereveal);
-        //}
     }
 
     /* ------------------------------------------------------------
                         UPDATE SUPPLY
     ------------------------------------------------------------ */
 
-    function test_UpdateSupply() public {
+    function testUpdateSupply() public {
         vm.prank(team);
         low.updateSupply(137);
 
@@ -58,15 +55,15 @@ contract TheLowTest is Test {
         }
     }
 
-    function testEvent_UpdateSupply() public {
+    function testEventUpdateSupply() public {
         vm.expectEmit(true, true, true, true);
-        emit SupplyUpdated(137);
+        emit SupplyUpdate(137);
 
         vm.prank(team);
         low.updateSupply(137);
     }
 
-    function test_UpdateSupplyDoesntBurnSold() public {
+    function testUpdateSupplyDoesntBurnSold() public {
         console.log("Transferring");
         vm.prank(team);
         low.transferFrom(team, alice, 201);
@@ -80,12 +77,12 @@ contract TheLowTest is Test {
         low.ownerOf(100);
     }
 
-    function testRevert_UpdateSupply_WhenNotOwner() public {
+    function testRevertUpdateSupplyWhenNotOwner() public {
         vm.expectRevert("UNAUTHORIZED");
         low.updateSupply(137);
     }
 
-    function testRevert_UpdateSupply_WhenInvalidSupply() public {
+    function testRevertUpdateSupplyWhenInvalidSupply() public {
         // Equal to current
         vm.prank(team);
         vm.expectRevert("INVALID_SUPPLY");
@@ -104,25 +101,7 @@ contract TheLowTest is Test {
         assertEq(low.totalSupply(), 222);
     }
 
-    /* -------------------------------------------------------------
-                        BURN
-    ------------------------------------------------------------- */
-
-    // function testBurn() public {
-    //     low.mint(alice, 1, 0);
-    //     low.mint(bob, 2, 1);
-    //     low.mint(alice, 3, 2);
-
-    //     low.burn(3);
-
-    //     assertEq(low.balanceOf(alice), 1);
-    //     assertEq(low.ownerOf(1), alice); // still alice
-
-    //     vm.expectRevert("NOT_MINTED");
-    //     low.ownerOf(3); // burned
-    // }
-
-    event SupplyUpdated(uint8 indexed newSupply);
+    event SupplyUpdate(uint8 indexed newSupply);
 
     /* -----------------------------------------------
                         REVEAL
@@ -142,23 +121,24 @@ contract TheLowTest is Test {
         low.reveal();
     }
 
+    // FIXME or REMOVEME
     function testRevealSkipsBurned() public {}
 
     function testDivideRoundUp() public {
-        assertEq(10, low.divideRoundUp(99, 10, 1));
-        assertEq(10, low.divideRoundUp(100, 10, 1));
-        assertEq(11, low.divideRoundUp(101, 10, 1));
-        assertEq(0, low.divideRoundUp(0, 20, 1));
-        assertEq(26, low.divideRoundUp(251, 10, 1));
+        assertEq(10, utils.divideRoundUp(99, 10, 1));
+        assertEq(10, utils.divideRoundUp(100, 10, 1));
+        assertEq(11, utils.divideRoundUp(101, 10, 1));
+        assertEq(0, utils.divideRoundUp(0, 20, 1));
+        assertEq(26, utils.divideRoundUp(251, 10, 1));
 
-        assertEq(3, low.divideRoundUp(222, 7400, 100));
-        assertEq(11, low.divideRoundUp(222, 2019, 100)); // 222/20.19 = 11
-        assertEq(22, low.divideRoundUp(222, 1010, 100)); // 222/10.1 = 22
-        assertEq(75, low.divideRoundUp(222, 296, 100)); // 222/2.96 = 75
-        assertEq(111, low.divideRoundUp(222, 200, 100));
+        assertEq(3, utils.divideRoundUp(222, 7400, 100));
+        assertEq(11, utils.divideRoundUp(222, 2019, 100)); // 222/20.19 = 11
+        assertEq(22, utils.divideRoundUp(222, 1010, 100)); // 222/10.1 = 22
+        assertEq(75, utils.divideRoundUp(222, 296, 100)); // 222/2.96 = 75
+        assertEq(111, utils.divideRoundUp(222, 200, 100));
 
         vm.expectRevert();
-        low.divideRoundUp(100, 0, 1);
+        utils.divideRoundUp(100, 0, 1);
     }
 
     function testRoyalty() public {
