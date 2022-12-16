@@ -27,7 +27,7 @@ contract TheLow is ERC721, Owned {
                         DATA STRUCTURES
     ----------------------------------------------------------- */
 
-    /// @notice Represents a rarity/artwork tier
+    /// @notice Data structure for a rarity/artwork tier
     struct Tier {
         string name;
         string rarity;
