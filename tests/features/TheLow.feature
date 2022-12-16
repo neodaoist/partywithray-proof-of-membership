@@ -42,7 +42,7 @@ Feature: Partywithray Proof of Membership
         And the ability to update metadata should be frozen
         And the ability to reduce supply should be frozen
 
-        Scenario Template: Reveal when does not sell out
+    Scenario Template: Reveal when does not sell out
         When we reduce the supply to <supply>
         And we reveal the art
         Then the distribution should be <tier5> ultrarares, <tier4> rares, <tier3> uncommons, <tier2> commons, and <tier1> ultracommons
