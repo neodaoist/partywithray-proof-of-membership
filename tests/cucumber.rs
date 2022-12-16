@@ -79,7 +79,7 @@ async fn verify_pre_reveal_art(world: &mut SCWorld, nft_count_str: String) {
     let nft_count: i32 = nft_count_str.parse().expect("Number of NFTs should be a number");
     for i in 1..=nft_count {
         let jsondata = lookup_metadata(world, i).await;
-        assert_eq!(&jsondata["image"],"ipfs://bafybeiftai3ybdl727tbg7ajunjmehbmciinczprk6nxt2xznjxljsmm7y");
+        assert_eq!(&jsondata["image"],"ipfs://bafybeiehzuula2ao3fsfpvvjtr6mxhp7fdsh3rwqpgpamazjpbd7h7pu2m");
         assert_eq!(&jsondata["animation_url"],"ipfs://bafybeig5tsvqpky2o5yz3tqjekghpuax6g6liptprebi7w4ghsrq47jppm");
         assert_eq!(&jsondata["content"]["uri"],"ipfs://bafybeig5tsvqpky2o5yz3tqjekghpuax6g6liptprebi7w4ghsrq47jppm");
         assert_eq!(&jsondata["content"]["hash"],"d02d2df27cd5a92eef66a7c8760ab28c06467532b09f870cff38bc32dd5984ac");
