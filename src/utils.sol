@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.16;
 
-/// @dev Utilities for match, base64, and string conversions
+/// @dev Utilities for math, base64, and string conversions
 library utils {
     //
     
