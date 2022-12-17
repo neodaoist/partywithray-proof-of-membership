@@ -90,7 +90,7 @@ contract TheLow is ERC721, Owned {
     ----------------------------------------------------------- */
 
     /// @notice Get the dynamic metadata. This will change one time, when reveal is called, following the initial sale.
-    function tokenURI(uint256 tokenId) public view override returns (string memory) {
+    function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
         string memory description =
             "A Proof of Membership NFT for partywithray fans, granting future access to shows, new music, and merch. \u1FAA9 \u26A1 In collaboration with Hyperforge, a smart contract development and security research firm, and Kairos Music, a music NFT information platform that seeks to make a living salary for artists in the music industry achievable.";
 
