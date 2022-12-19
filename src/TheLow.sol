@@ -50,6 +50,9 @@ contract TheLow is ERC721, Owned {
     /// @notice Maximum possible supply
     uint8 public constant MAX_SUPPLY = 222;
 
+    /// @notice Royalty percentage in basis points (7.5%)
+    uint32 public constant ROYALTY_IN_BPS = 750;
+
     /* -----------------------------------------------------------
                         STATE VARIABLES - PUBLIC
     ----------------------------------------------------------- */
@@ -287,6 +290,6 @@ contract TheLow is ERC721, Owned {
         view
         returns (address receiver, uint256 royaltyAmount)
     {
-        return (owner, salePrice / 10);
+        return (owner, (salePrice * ROYALTY_IN_BPS) / 10_000);  // 750 basis points or 7.5%
     }
 }

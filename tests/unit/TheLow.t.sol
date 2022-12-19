@@ -147,10 +147,10 @@ contract TheLowTest is Test {
 
         (address recipient, uint256 amount) = low.royaltyInfo(1, 100_000);
         assertEq(team, recipient);
-        assertEq(amount, 10_000); // 10%
+        assertEq(amount, 7_500); // 7.5%
         (recipient, amount) = low.royaltyInfo(2, 7_777);
         assertEq(team, recipient);
-        assertEq(amount, 777); // 10%
+        assertEq(amount, 583); // 7.5%
         (recipient, amount) = low.royaltyInfo(3, 0);
         assertEq(team, recipient);
         assertEq(amount, 0); // 10%
