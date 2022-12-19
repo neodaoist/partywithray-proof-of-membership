@@ -50,6 +50,7 @@ contract TheLow is ERC721, Owned {
     /// @notice Maximum possible supply
     uint8 public constant MAX_SUPPLY = 222;
 
+    /// @notice Royalty percentage in basis points (7.5%)
     uint32 public constant ROYALTY_IN_BPS = 750;
 
     /* -----------------------------------------------------------
