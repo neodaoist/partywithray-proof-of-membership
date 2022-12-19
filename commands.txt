@@ -11,6 +11,10 @@ forge verify-contract --chain-id 5 --num-of-optimizations 200 --watch --construc
 
 
 
+# Seaport
+forge script script/SeaportList.s.sol --rpc-url=$RPC_URL --private-key=$TESTNET_PK --broadcast --ffi
+
+
 
 [⠒] Compiling...
 No files changed, compilation skipped

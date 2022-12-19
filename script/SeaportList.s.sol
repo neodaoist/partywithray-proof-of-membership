@@ -24,7 +24,7 @@ ItemType
 
 contract ListEssayScript is Script {
     //
-
+    event SendListing(uint256 tokenId);
 
     function run() public {
         // Config
@@ -95,6 +95,7 @@ contract ListEssayScript is Script {
 
         // load the seaport contract
         SeaportInterface seaport = SeaportInterface(SEAPORT_CONTRACT);
+        emit SendListing(1);
         seaport.validate(orders);
 
     }
