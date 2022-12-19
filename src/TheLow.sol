@@ -287,6 +287,6 @@ contract TheLow is ERC721, Owned {
         view
         returns (address receiver, uint256 royaltyAmount)
     {
-        return (owner, salePrice / 10);
+        return (owner, salePrice * 750 / 10_000);  // 750 basis points or 7.5%
     }
 }

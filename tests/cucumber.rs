@@ -261,17 +261,17 @@ async fn check_distribution(world: &mut SCWorld, ultrarares: i32, rares: i32, un
     assert_eq!(token_count_by_tier[2], commons);
     assert_eq!(token_count_by_tier[1], ultracommons);
 }
-
-#[then(regex = r#"^royalties should be set at ([\d]+)% going to the "(.*)" address$"#)]
-async fn verify_royalty(world: &mut SCWorld, percent: i32, _royalty_address_name: String) {
+//royalties should be set at 7.5% going to the "Big Night" address
+#[then(regex = r#"^royalties should be set at ([\d]+) basis points going to the "(.*)" address$"#)]
+async fn verify_royalty(world: &mut SCWorld, basis_points: i32, _royalty_address_name: String) {
 
     let deployer = world.deployer_address().clone();
     let royalty_info = world.thelow_contract.as_ref().expect("TheLow Contract should be initialized")
-        .method::<_, (Address, U256)>("royaltyInfo", (U256::from(1), U256::from(10000_u64)))
+        .method::<_, (Address, U256)>("royaltyInfo", (U256::from(1), U256::from(100000_u64)))
         .expect("Error finding royaltyInfo method").call().await.expect("Error sending royaltyInfo call");
 
     assert_eq!(royalty_info.0, deployer);
-    assert_eq!(royalty_info.1, U256::from(10000 * percent / 100));
+    assert_eq!(royalty_info.1, U256::from(100000 * basis_points / 10000));
 }
 
 #[then(r#"the ability to mint more NFTs should be frozen"#)]
