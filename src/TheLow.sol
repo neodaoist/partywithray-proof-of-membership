@@ -169,7 +169,6 @@ contract TheLow is ERC721, Owned {
         for (uint8 index = MAX_SUPPLY; index > 0 && currentSupply > _newSupply; index--) {
             if (_ownerOf[index] == msg.sender) {
                 // Only burn the tokens we own
-                //FIXME console.log("Burning: ", index, ", Owned by: ", _ownerOf[index]);
                 _burn(index);
                 currentSupply--;
             }
@@ -199,12 +198,12 @@ contract TheLow is ERC721, Owned {
                 index++;
             }
         }
-        assert(index == totalSupply); // FIXME: Remove before mainnet deploy
+
         index--; // Index will be totalSupply, or one past the end of lottery's used range
 
         // Roll random dice for tiers 5 through 2
         for (uint8 tiernum = 5; tiernum > 1; tiernum--) {
-            uint256 targetAmount = utils.divideRoundUp(totalSupply, _tierInfo[tiernum].portion, 100); // FIXME: Proportional amounts if we don't sell out
+            uint256 targetAmount = utils.divideRoundUp(totalSupply, _tierInfo[tiernum].portion, 100);
             while (targetAmount > 0) {
                 uint8 randIndex = getRandByte(randdata);
                 if (index < 128) {
