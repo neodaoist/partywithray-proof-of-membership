@@ -95,7 +95,7 @@ contract TheLow is ERC721, Owned {
     /// @notice Get the dynamic metadata. This will change one time, when reveal is called, following the initial sale.
     function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
         string memory description =
-            "A Proof of Membership NFT for partywithray fans, granting future access to shows, new music, and merch. \u1FAA9 \u26A1 In collaboration with Hyperforge, a smart contract development and security research firm, and Kairos Music, a music NFT information platform that seeks to make a living salary for artists in the music industry achievable.";
+            "A Proof of Membership NFT for partywithray fans, granting future access to shows, new music, and merch. \u26A1 Dev by Hyperforge, a smart contract development and security research firm. Design by Kairos Music, a music NFT information platform that seeks to make a living salary for artists in the music industry achievable.";
 
         return string(
             abi.encodePacked(
@@ -169,7 +169,6 @@ contract TheLow is ERC721, Owned {
         for (uint8 index = MAX_SUPPLY; index > 0 && currentSupply > _newSupply; index--) {
             if (_ownerOf[index] == msg.sender) {
                 // Only burn the tokens we own
-                //FIXME console.log("Burning: ", index, ", Owned by: ", _ownerOf[index]);
                 _burn(index);
                 currentSupply--;
             }
@@ -199,12 +198,12 @@ contract TheLow is ERC721, Owned {
                 index++;
             }
         }
-        assert(index == totalSupply); // FIXME: Remove before mainnet deploy
+
         index--; // Index will be totalSupply, or one past the end of lottery's used range
 
         // Roll random dice for tiers 5 through 2
         for (uint8 tiernum = 5; tiernum > 1; tiernum--) {
-            uint256 targetAmount = utils.divideRoundUp(totalSupply, _tierInfo[tiernum].portion, 100); // FIXME: Proportional amounts if we don't sell out
+            uint256 targetAmount = utils.divideRoundUp(totalSupply, _tierInfo[tiernum].portion, 100);
             while (targetAmount > 0) {
                 uint8 randIndex = getRandByte(randdata);
                 if (index < 128) {
