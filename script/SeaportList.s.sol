@@ -35,6 +35,14 @@ contract ListEssayScript is Script {
         address payable TEAM = payable(0xf068e6F80fA1d55A27be3408cbdad3fCDa704514); // Testnet Deployer
         address TOKEN_ADDR = 0x69b79E3d630198577B3e2b18d88E8223325E6ABA;  // Testnet, pre-reveal
 
+                // authorize zora contracts
+                // get already deployed Essay NFT contract
+        TheLow nft = TheLow(TOKEN_ADDR);
+        vm.startBroadcast();
+        nft.setApprovalForAll(SEAPORT_CONTRACT, true);
+        vm.stopBroadcast();
+
+
         // Create OfferItem (the NFT for listing)
         OfferItem memory item = OfferItem(
             ItemType.ERC721,
@@ -48,25 +56,34 @@ contract ListEssayScript is Script {
         ConsiderationItem memory payment = ConsiderationItem(
             ItemType.NATIVE,  // Eth on Mainnet
             address(0),  // token -- Ignored for Eth
-            0x00,  // identifier -- Ignored for Eth
-            0.0111 ether,  // start amount
-            0.0111 ether,   // end amount
+            0,  // identifier -- Ignored for Eth
+            9990000000000000,  // start amount
+            9990000000000000,   // end amount
             TEAM   // payable
         );
 
-
         ConsiderationItem memory fee = ConsiderationItem(
-            ItemType.NATIVE,  // Eth on Mainnet
-            address(0),  // token -- Ignored for Eth
-            0x00,  // identifier -- Ignored for Eth
-            0.002775 ether,  // start amount
-            0.002775 ether,   // end amount
-            OPENSEA_MARKETPLACE   // payable
+        ItemType.NATIVE,
+        address(0),
+        0,
+        277500000000000,
+        277500000000000,
+        OPENSEA_MARKETPLACE
         );
 
-        ConsiderationItem[] memory considerationItems = new ConsiderationItem[](2);
+        ConsiderationItem memory royalty = ConsiderationItem(
+            ItemType.NATIVE,  // Eth on Mainnet
+            address(0),  // token -- Ignored for Eth
+            0,  // identifier -- Ignored for Eth
+            832500000000000,  // start amount
+            832500000000000,   // end amount
+            TEAM   // payable
+        );
+
+        ConsiderationItem[] memory considerationItems = new ConsiderationItem[](3);
         considerationItems[0] = payment;
         considerationItems[1] = fee;
+        considerationItems[2] = royalty;
 
         OfferItem[] memory offerItems = new OfferItem[](1);
         offerItems[0] = item;
@@ -78,13 +95,15 @@ contract ListEssayScript is Script {
             offerItems,  // offer
             considerationItems,  // consideration
             OrderType.FULL_OPEN,
-            block.timestamp,       // start time -- current time
-            block.timestamp + 86400 * 14,       // two weeks
+            1671729720,       // start time -- current time
+            1673025720,       // two weeks
             bytes32(0),  // zone hash
             0x22212345678, // salt
             OPENSEA_CONDUIT_KEY,
             1      // total original consideration items
         );
+
+
 
         // Create Order
         bytes memory signature = abi.encodePacked(uint(0));
@@ -96,6 +115,9 @@ contract ListEssayScript is Script {
         // load the seaport contract
         SeaportInterface seaport = SeaportInterface(SEAPORT_CONTRACT);
         emit SendListing(1);
+
+        //seaport.getOrderHash(order);
+
         seaport.validate(orders);
 
     }

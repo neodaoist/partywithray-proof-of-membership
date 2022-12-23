@@ -62,10 +62,11 @@ Transaction has been reverted by the EVM: { "blockHash": "0x6d40b5705979414ccfa5
 
 
 
+------- UAT --------
 
+Pre-reveal: 0xba3af3700d73686db3313d63be767dc4eff17453
 
-
-
+Reveal: 0x747f44056e06551d57463b022e0782f6ea58a345
 --------
 Offerer:
 Account 3
